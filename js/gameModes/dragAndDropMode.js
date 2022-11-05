@@ -67,7 +67,8 @@ function correctPosition(prop, ecopoints) {
             if (ecopoint.type == prop.type)
                 props.pop()
             else
-                console.log("tente novamente");
+                canvas.className = "shake"
+                setTimeout(() => canvas.className = "", 500)
     })
 }
 
