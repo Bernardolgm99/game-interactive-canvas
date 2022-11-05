@@ -1,3 +1,8 @@
+//EXPORTS
+import * as Prop from "../class/propClass.js"
+import * as EcoPoint from "../class/ecoPointClass.js"
+
+
 //GLOBALS
 const canvas = document.querySelector('#myCanvas');
 canvas.width = 500;
@@ -10,61 +15,31 @@ let ecopoints = [];
 let props = []; // props array of objects
 let propMoving = {};
 
+//FEEDING CLASS
+Prop.canvasInfo(ctx,H,W)
+EcoPoint.canvasInfo(ctx,H,W)
 
+//TEST OBJECTS
+ecopoints.push(EcoPoint.createEcoPoint(10, 10, 100, 100, `..\\media\\props\\plasticBleach.png`, 'metal', 'metalEcoPoint'))
+ecopoints.push(EcoPoint.createEcoPoint(200, 10, 100, 100, `..\\media\\props\\plasticBleach.png`, 'papel', 'metalEcoPoint'))
 
-//CLASS
+props.push(Prop.createProp(50, 50, `..\\media\\props\\glassWineFull.png`, "vidro", "trash"))
+props.push(Prop.createProp(50, 50, `..\\media\\props\\metalCanSoda.png`, "metal", "can"))
+props.push(Prop.createProp(50, 50, `..\\media\\props\\plasticPop4.png`, "papel", "trash"))
+props.push(Prop.createProp(50, 50, `..\\media\\props\\plasticBleach.png`, "outros", "trash"))
 
-class Prop {
-    constructor(h, w, img, type, name) {
-        this.h = h;
-        this.w = w;
-        this.img = img;
-        this.type = type;
-        this.name = name;
-        this.x = Math.floor(Math.random() * (W - this.h));
-        this.y = Math.floor(Math.random() * (H - this.w));
-    }
-    draw() {
-        ctx.fillStyle = this.img
-        ctx.beginPath()
-        ctx.fillRect(this.x, this.y, this.w, this.h)
-        ctx.closePath()
-    }
-    update() {
-        ctx.clearRect(this.x, this.y, this.w, this.h)
-        ctx.fillStyle = this.img
-        ctx.beginPath()
-        ctx.fillRect(this.x, this.y, this.w, this.h)
-        ctx.closePath()
-    }
-}
-
-class EcoPoint {
-    constructor(x, y, w, h, img, type, name) {
-        this.x = x
-        this.y = y
-        this.w = w
-        this.h = h
-        this.img = img
-        this.type = type
-        this.name = name
-    }
-    draw() {
-        ctx.fillStyle = this.img
-        ctx.beginPath()
-        ctx.fillRect(this.x, this.y, this.w, this.h)
-        ctx.closePath()
-    }
-}
-
-
+ecopoints.forEach((ecopoint) => {
+    ecopoint.draw()
+})
+props.forEach((prop) => {
+    prop.draw()
+})
 
 //FUNCTION
-
 function render() {
     ctx.clearRect(0, 0, W, H)
     ecopoints.forEach((ecopoint) => {
-        ecopoint.draw()
+        ecopoint.update()
     })
     props.forEach((prop) => {
         prop.update()
@@ -72,8 +47,8 @@ function render() {
 }
 
 function draging(e, object) {
-    object.x += e.movementX
-    object.y += e.movementY
+    object.x = e.offsetX - object.w / 2
+    object.y = e.offsetY - object.h / 2
 }
 
 function verifyObjectHover(e, objects) {
@@ -96,47 +71,38 @@ function correctPosition(prop, ecopoints) {
     })
 }
 
-
-
-//TEST OBJECTS
-ecopoints.push(new EcoPoint(10, 10, 100, 100, 'black', 'metal', 'metalEcoPoint'))
-ecopoints.push(new EcoPoint(200, 10, 100, 100, 'grey', 'papel', 'metalEcoPoint'))
-
-props.push(new Prop(50, 50, "blue", "vidro", "trash"))
-props.push(new Prop(50, 50, "red", "metal", "can"))
-props.push(new Prop(50, 50, "yellow", "papel", "trash"))
-props.push(new Prop(50, 50, "green", "outros", "trash"))
-
-render()
-
-
-
 // EVENTS
-
 canvas.addEventListener('mousedown', (e) => {
     if (verifyObjectHover(e, props))
         propMoving = verifyObjectHover(e, props)
-    propMoving.h = propMoving.h * 1.1
-    propMoving.w = propMoving.w * 1.1
+    propMoving.h = propMoving.h * 1.5
+    propMoving.w = propMoving.w * 1.5
+    propMoving.x = e.offsetX - (propMoving.w / 2)
+    propMoving.y = e.offsetY - (propMoving.h / 2)
     render()
     isMoving = true;
 });
+
 canvas.addEventListener('mousemove', (e) => {
     if (isMoving) {
         draging(e, propMoving)
         render()
     }
 });
+
 canvas.addEventListener('mouseout', () => {
-    propMoving.h = propMoving.h / 1.1
-    propMoving.w = propMoving.w / 1.1
+    propMoving.h = propMoving.h / 1.5
+    propMoving.w = propMoving.w / 1.5
     propMoving = {}
     render()
     isMoving = false;
 });
+
 window.addEventListener('mouseup', () => {
-    propMoving.h = propMoving.h / 1.1
-    propMoving.w = propMoving.w / 1.1
+    propMoving.w = propMoving.w / 1.5
+    propMoving.h = propMoving.h / 1.5
+    propMoving.x += propMoving.w / 3
+    propMoving.y += propMoving.h / 3
     correctPosition(propMoving, ecopoints)
     if (propMoving)
         propMoving = {}
