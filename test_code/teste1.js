@@ -27,7 +27,7 @@ let dimensionX = 250
 let dimensionY = 250
 
 //PIXEL VARIABLE CHECK
-let pixelArray = []
+/* let pixelArray = [] */
 let pixel
 
 
@@ -47,7 +47,7 @@ function base(){
         
 
 
-        //BERNARDO TEST
+/*         //BERNARDO TEST
          ctx.drawImage(hitbox_image, imgX, imgY, dimensionX, dimensionY, 0, 0, 500, 500)
         //x = i AND y = j
        for(let i = 0; i < W; i++) {
@@ -62,8 +62,9 @@ function base(){
        }
        console.log(pixelArray)
        console.log(pixelArray.filter(pixel => pixel == 1))
-    } 
+    }  */
  }
+}
 
 
 
@@ -75,8 +76,8 @@ function render() {
     ctx.clearRect(0, 0, W, H)
     //base_image.src = `img/map.png`;
     //console.log(imgX, imgY)
-    /* ctx.drawImage(hitbox_image, imgX, imgY, dimensionX, dimensionY, 0, 0, 500, 500) */
-    ctx.drawImage(base_image,  imgX, imgY, dimensionX, dimensionY, 0, 0, 500, 500); 
+     ctx.drawImage(hitbox_image, imgX, imgY, dimensionX, dimensionY, 0, 0, 500, 500) 
+     ctx.drawImage(base_image,  imgX, imgY, dimensionX, dimensionY, 0, 0, 500, 500);  
 
     //TEST BALL
     ctx.beginPath()
@@ -101,15 +102,17 @@ window.addEventListener('keydown', (event) => {
     //SWITCH CASE FOR EVERY ARROW KEY
     switch (event.keyCode){
         case 37:
+            
+            ctx.drawImage(hitbox_image, imgX, imgY, dimensionX, dimensionY, 0, 0, 500, 500)
 
             //PIXEL COLOR CHECK
-/*             pixel = ctx.getImageData(ballX-7, ballY, 25, 25) 
+            pixel = ctx.getImageData(ballX-7, ballY, 25, 25) 
             console.log(pixel.data[0])
-           console.log(pixel.data[1])
-           console.log(pixel.data[2]) */
+            console.log(pixel.data[1])
+            console.log(pixel.data[2]) 
 
             //PIXEL COLOR CHECK
-/*              if(pixel.data[0] == 255 && pixel.data[1] == 255 && pixel.data[2] == 255){ */ 
+              if(pixel.data[0] == 255 && pixel.data[1] == 255 && pixel.data[2] == 255){
                 if(ballX > 100){
                     ballX -= 3
                 } else {
@@ -117,35 +120,71 @@ window.addEventListener('keydown', (event) => {
                         imgX -= 3
                     }
                 }
-            //} 
+            } 
             //console.log('left')
             break;
         case 38: 
-            if(ballY > 100){
-                ballY -= 3
-            } else {
-                if(imgY > 0){
-                    imgY -= 3
+
+            ctx.drawImage(hitbox_image, imgX, imgY, dimensionX, dimensionY, 0, 0, 500, 500)
+
+            //PIXEL COLOR CHECK
+            pixel = ctx.getImageData(ballX, ballY-7, 25, 25) 
+            console.log(pixel.data[0])
+            console.log(pixel.data[1])
+            console.log(pixel.data[2]) 
+
+            //PIXEL COLOR CHECK
+            if(pixel.data[0] == 255 && pixel.data[1] == 255 && pixel.data[2] == 255){
+                if(ballY > 100){
+                    ballY -= 3
+                } else {
+                    if(imgY > 0){
+                        imgY -= 3
+                    }
                 }
             }
             //console.log('up')
             break;
         case 39:
-            if(ballX < 400){
-                ballX += 3
-            } else {
-                if(imgX + dimensionY < imgW){
-                    imgX += 3
+
+            ctx.drawImage(hitbox_image, imgX, imgY, dimensionX, dimensionY, 0, 0, 500, 500)
+
+            //PIXEL COLOR CHECK
+            pixel = ctx.getImageData(ballX+4, ballY, 25, 25) 
+            console.log(pixel.data[0])
+            console.log(pixel.data[1])
+            console.log(pixel.data[2]) 
+            
+            //PIXEL COLOR CHECK
+            if(pixel.data[0] == 255 && pixel.data[1] == 255 && pixel.data[2] == 255){
+                if(ballX < 400){
+                    ballX += 3
+                } else {
+                    if(imgX + dimensionY < imgW){
+                        imgX += 3
+                    }
                 }
             }
             //console.log('right')
-            break;
-            case 40:
-                if(ballY < 400){
-                    ballY += 3
-                } else {
-                    if(imgY + dimensionX < imgH){
-                        imgY += 3
+        break;
+        case 40:
+
+                ctx.drawImage(hitbox_image, imgX, imgY, dimensionX, dimensionY, 0, 0, 500, 500)
+
+                //PIXEL COLOR CHECK
+                pixel = ctx.getImageData(ballX, ballY+4, 25, 25) 
+                console.log(pixel.data[0])
+                console.log(pixel.data[1])
+                console.log(pixel.data[2]) 
+
+                //PIXEL COLOR CHECK
+                if(pixel.data[0] == 255 && pixel.data[1] == 255 && pixel.data[2] == 255){
+                    if(ballY < 400){
+                        ballY += 3
+                    } else {
+                        if(imgY + dimensionX < imgH){
+                            imgY += 3
+                        }
                     }
                 }
             //console.log('down')
