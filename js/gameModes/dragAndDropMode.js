@@ -64,18 +64,11 @@ function correctPosition(prop, ecopoints) {
         if ((ecopoint.x < prop.x) && (ecopoint.y < prop.y) && (ecopoint.x + ecopoint.w > prop.x + prop.w) && (ecopoint.y + ecopoint.h > prop.y + prop.h))
             if (ecopoint.type == prop.type)
                 props.pop()
-<<<<<<< HEAD
             else {
                 ecopoint.shake = true
                 let shake = setInterval(() => { render() }, 40)
                 setTimeout(() => { clearTimeout(shake); ecopoint.shake = false }, 5000)
             }
-
-=======
-            else
-                canvas.className = "shake"
-                setTimeout(() => canvas.className = "", 500)
->>>>>>> b45493e9929429c91deb0b66dfa69a8551941270
     })
 }
 
