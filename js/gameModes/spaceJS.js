@@ -6,15 +6,15 @@ const H = canvas.height;
 //GLOBALS
 //trash
 class Prop {
-    constructor(h, w, img, type, name) {
+    constructor(h, w, img, type, name, x, y) {
         this.h = h;
         this.w = w;
         this.img = img;
         this.type = type;
         this.name = name;
         this.ground = false;
-        this.x = Math.floor(Math.random() * (W - this.h));
-        this.y = Math.floor(Math.random() * (7*H/10 - this.w));
+        this.x = x;
+        this.y = y;
     }
     update() {
         ctx.clearRect(this.x, this.y, this.w, this.h)
@@ -63,7 +63,8 @@ class Shot {
             startShoot = true;
 
             scale = (Math.sqrt((Math.pow(yp-yr, 2) + Math.pow(xp-xr, 2))))/40;
-            if(scale >= 7.7) scale = 8
+            if(scale >= 7.7 && !easterEgg) scale = 8
+            else scale = scale * 5
 
             //faceing 
             if (angle <= -1.5 ||  angle >= 1.4){
@@ -76,7 +77,10 @@ class Shot {
             }
 
             //agle random far not really accurate
-            let wobble = Math.random() * (0.07 - (-0.07))
+            let wobble = 0
+            if(scale > 5){
+                wobble = Math.random() * (0.07 - (-0.07))
+            }
             this.dx = scale*Math.cos(angle + wobble)
             this.dy = scale*Math.sin(angle + wobble)
         }
@@ -101,13 +105,23 @@ class Shot {
 class Trees {
     constructor(h){
         this.h = h;
+        this.w = 2*h/3;
+        this.img = 'red';
+        this.x = Math.floor(Math.random() * W);
+        this.y = Math.floor(Math.random() * (7*H/10 - 6*H/10))
+    }
+    render(){
+        ctx.fillStyle = this.img;
+        ctx.beginPath();
+        ctx.fillRect(this.x, this.y, this.w, this.h);
+        ctx.closePath()
     }
 }
 
 //player position and atributes
 let xp = 100, yp = 800, w= 50, h= 70;
 //keys
-let rightKey = false, leftKey = false, upKey = false, downKey = false, fleft = false, spaceKey = false;
+let rightKey = false, leftKey = false, upKey = false, downKey = false, fleft = false, spaceKey = false, easterEgg = false;
 //calculate Shots
 let angle, startShoot = false, scale;
 //trash
@@ -118,36 +132,35 @@ let shot = new Shot(10, 10, 'green')
 let colision = false, indexColision, colisionPlayer = false;
 let size = Math.floor(Math.random() * (50 - 20) + 20), ground = false
 let xrSpace, yrSpace;
+//arvores
+let trees = []
 
 //keys EVENTS
 window.addEventListener('keydown', e => {
-    if (e.key == 'ArrowRight' || e.keyCode == 68)
-        rightKey = true, fleft = false;
-    if (e.key == 'ArrowLeft' || e.keyCode == 65)
-        leftKey = true, fleft = true;
-    if (e.key == 'ArrowDown' || e.keyCode == 83)
-        downKey = true;
-    if (e.key == 'ArrowUp' || e.keyCode == 87)
-        upKey = true;
+    if (e.key == 'ArrowRight' || e.keyCode == 68) rightKey = true, fleft = false;
+    if (e.key == 'ArrowLeft' || e.keyCode == 65) leftKey = true, fleft = true;
+    if (e.key == 'ArrowDown' || e.keyCode == 83) downKey = true;
+    if (e.key == 'ArrowUp' || e.keyCode == 87) upKey = true;
     if (e.keyCode == 32){
         spaceKey = true;
         shot.shotsCalculator(xrSpace, yrSpace)
     }
+    if(e.keyCode == 85){
+        if(!easterEgg){
+            easterEgg = true;
+        } else {
+            easterEgg = false;
+        } 
+    }
     e.preventDefault();
 });
 window.addEventListener('keyup', e => {
-    if (e.key == 'ArrowRight' || e.keyCode == 68)
-        rightKey = false;
-    if (e.key == 'ArrowLeft' || e.keyCode == 65)
-        leftKey = false;
-    if (e.key == 'ArrowDown' || e.keyCode == 83)
-        downKey = false;
-        if (e.key == 'ArrowUp' || e.keyCode == 87)
-        upKey = false;
-        if (e.keyCode == 32){
-            spaceKey = false;
-        }
-});
+    if (e.key == 'ArrowRight' || e.keyCode == 68) rightKey = false;
+    if (e.key == 'ArrowLeft' || e.keyCode == 65) leftKey = false;
+    if (e.key == 'ArrowDown' || e.keyCode == 83) downKey = false;
+    if (e.key == 'ArrowUp' || e.keyCode == 87) upKey = false;
+    if (e.keyCode == 32) spaceKey = false;
+    });
 //canvas EVENTS
 canvas.addEventListener('click', e => {
     let xr = e.offsetX; let yr = e.offsetY;
@@ -157,37 +170,41 @@ canvas.addEventListener('mousemove', e => {
     xrSpace = e.offsetX; yrSpace = e.offsetY;
 })     
 
-function trashRender(nTimes){
-    //escolher arvore aleratoriamente
-    //criar lixo
-    for (var i = 0; i < nTimes; i++){
-        trash.push(new Prop(50,50, 'black', 'metal', 'trash'))
+function trashRender(){
+    //escolher arvore
+    trees.forEach((tree) => {
+        //criar lixo na arvore, x vezes
+        let nTimes = Math.floor(Math.random()*(6 - 2)+ 2)
+        for (var i = 0; i < nTimes; i++){
+            let x = tree.x + Math.random() * (tree.w- 50) // [MIN;MAX] = MIN + random*(MAX-MIN)
+            let y = tree.y + Math.random() * (tree.h- 50)
+            trash.push(new Prop(50,50, 'black', 'metal', 'trash', x, y))
+        }
+        //x && y, de momento aparece aleatoriamente no canvas
+    })
+    
+}
+
+function treesRender(){
+    let nTimes = Math.floor(Math.random()*(4 - 2)+ 2)
+    nTimes = 1
+    for(let i = 0; i < nTimes; i++){
+        let sizes = Math.random() * (H - 2*H/10)
+        trees.push(new Trees(sizes, 'red'))
+        //check position of other trees
     }
-    //x && y, de momento aparece aleatoriamente no canvas
 }
 //trash placement calculator
 
-trashRender(10)
+treesRender()
+trashRender()
+
 function render() {
     //clear the Canvas
     ctx.clearRect(0, 0, W, H);
-    
-    //arvores
-    let count = 0, countw = 0
-    for (let i = 0; i < 8; i++){
-        //uno
-        ctx.fillStyle = 'red';
-        ctx.fillRect(count,650,w,h)
-        ctx.fillStyle = 'red';
-        ctx.fillRect(countw,200,200,500)
-        count += 300;
-        countw += 280;
-        width = 200 
-    }
-    
-    trash.forEach((prop) => {
-        prop.update()
-    })
+
+    trees.forEach((tree)=>{tree.render()})
+    trash.forEach((prop) => {prop.update()})
     shot.update()
     
     //player boundering
