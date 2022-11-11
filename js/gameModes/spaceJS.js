@@ -24,16 +24,16 @@ class Prop {
         ctx.closePath()
         if(colision){
             ctx.fillStyle = 'gray';
-            console.log(trash[indexColision])
             ctx.fillRect(trash[indexColision].x, trash[indexColision].y, trash[indexColision].w, trash[indexColision].h)
             if(!trash[indexColision].ground){
                 trash[indexColision].y += 0.1
-                if(trash[indexColision].y >= yp + 20) trash[indexColision].ground = true, colision = false
+                if(trash[indexColision].y >= yp + trashSize) trash[indexColision].ground = true, colision = false
                 if(colisionPlayer) playerBag.push(trash[indexColision])
             }
         }
     }
 }
+//fazer ricochet
 class Shot {
     constructor (h, img){
         this.h = h;
@@ -80,8 +80,8 @@ class Shot {
 
             //agle random far not really accurate
             let wobble = 0
-            if(scale > 5){
-                wobble = Math.random() * (0.07 - (-0.07))
+            if(scale > 8){
+                wobble = Math.random() * (0.02 - (-0.02))
             }
             this.dx = scale*Math.cos(angle + wobble)
             this.dy = scale*Math.sin(angle + wobble)
@@ -89,16 +89,14 @@ class Shot {
     }
     checkColison(){
         for(let i = 0; i < trash.length; i++){
-            if (this.x + 10 < trash[i].x ||
-                this.x > trash[i].x + size ||
-                this.y + 10 < trash[i].y ||
-                this.y > trash[i].y + size){
+            if (this.x + sizeRock < trash[i].x ||
+                this.x > trash[i].x + trashSize ||
+                this.y + sizeRock < trash[i].y ||
+                this.y > trash[i].y + trashSize){
                
             } else {
                 colision = true;
                 indexColision = i
-                console.log(colision, i)
-                console.log(this, trash)
                 break
             }
         };
@@ -121,20 +119,17 @@ class Trees {
 }
 
 //player position and atributes
-let xp = 100, yp = 800, w= 50, h= 70;
+let xp = 100, yp = 800, w= 50, h= 70, pMovement = 1.3;
 //keys
 let rightKey = false, leftKey = false, upKey = false, downKey = false, fleft = false, spaceKey = false, easterEgg = false;
+//shot
+let sizeRock = Math.floor(Math.random()* (15 - 10)+10), shot = new Shot(sizeRock, 'green');
 //calculate Shots
 let angle, startShoot = false, scale;
 //trash
-let trash = [], quantity = 10;
-//shot
-let sizeRock = Math.floor(Math.random()* (15 - 10)+10)
-let shot = new Shot(sizeRock, sizeRock, 'green')
+let trash = [], trashSize = Math.floor(Math.random()*(40 - 25) + 25);
 //checkColisons
-let colision = false, indexColision, colisionPlayer = false;
-let size = Math.floor(Math.random() * (50 - 20) + 20), ground = false
-let xrSpace, yrSpace;
+let colision = false, indexColision, colisionPlayer = false, xrSpace, yrSpace;
 //arvores
 let trees = []
 
@@ -174,7 +169,6 @@ canvas.addEventListener('mousemove', e => {
     xrSpace = e.offsetX; yrSpace = e.offsetY;
 })     
 
-let trashSize = 50;
 function trashRender(){
     //escolher arvore
     trees.forEach((tree) => {
@@ -190,60 +184,28 @@ function trashRender(){
     })
     
 }
-let oldTree = {}, tree ={}
 function treesRender(){
-    /* let nTimes = Math.floor(Math.random()*(4 - 2)+ 2) //HOW MANY TIMES */
-    let nTimes = 2
-    for(let i = 0; i <= nTimes; i++){
+    let tree ={}
+    let nTimes = Math.floor(Math.random()*(6 - 3)+ 3) //HOW MANY TIMES
+    if(nTimes > 4) nTimes = 4; //fazer mais provavel que sejam 4 arvores
+    let spaceTree = Math.floor(W/nTimes)
+    for(let i = 1; i <= nTimes; i++){
         let sizes = Math.random() * (8*H/10 - 7*H/10) + 7*H/10
-        x = Math.floor(Math.random()*W);
+        x = Math.floor(Math.random()*(spaceTree*i - spaceTree*(i-1)) + spaceTree*(i-1));
         y = Math.floor(Math.random()*(9*H/10 - 2*H/10)+2*H/10);
         tree = new Trees(sizes, 'red', x, y)
         trees.push(tree)
 
-        //check positions
-        trees.forEach((tree)=>{
-            console.log(tree, oldTree)
-        //se estiver fora do canvas
-            if(tree.x + tree.w > W){
-                let diference = (tree.x + tree.w) - W
-                tree.x = tree.x - diference
-            } 
-            if(tree.y + tree.h > 8*H/10) {
-                let diference = (tree.y + tree.h) - 8*H/10
-                tree.y = tree.y - diference
-            }
-        //se estiver em cima de outra
-            if(trees.length > 1){
-                if(tree.x + tree.w > oldTree.x){
-                    let diference = (tree.x + tree.w) - oldTree
-                    tree.x = tree.x - diference
-                } 
-            }
-            oldTree = tree
-            oldTree.img = 'gray'
-            /* if(tree.x > 0 || tree.x + tree.w > W ||
-               tree.y > 0 || tree.y + tree.h > H){
-                console.log('error')
-                x = Math.floor(Math.random()*W) - this.w;
-                y = Math.floor(Math.random()*9*H/10) - this.h;
-            } */
-            /* else {
-                ctx.fillStyle = 'green'
-                ctx.fillRect(this.x, this.y, this.h, this.w) 
-            } */
-            
-            /* if (tree.x + tree.w < oldTree.x ||
-                tree.x > oldTree.x + oldTree.w ||
-                tree.y + tree.h < oldTree.y ||
-                tree.y > oldTree.y + oldTree.h){
-            } else {
-                console.log(nTimes, 'tree colision detected')
-            } */
-        })
-    }
-        
-}
+        //se estiver fora do espaço delimitado para ele
+        if(tree.x + tree.w > spaceTree*i){
+            let diference = (tree.x + tree.w) - spaceTree*i
+            tree.x = tree.x - diference
+        } 
+        if(tree.y + tree.h > 8*H/10) {
+            let diference = (tree.y + tree.h) - 8*H/10
+            tree.y = tree.y - diference
+        }
+    }}
 //trash placement calculator
 
 treesRender()
@@ -258,10 +220,10 @@ function render() {
     shot.update()
     
     //player boundering
-    if (rightKey && xp + w < W) xp+=1.3;
-    if (leftKey && xp > 0) xp-=1.3;
-    if (downKey && yp + h < H) yp+=1.3;
-    if (upKey && yp + h > 8*H/10) yp-=1.3;
+    if (rightKey && xp + w < W) xp+=pMovement;
+    if (leftKey && xp > 0) xp-=pMovement;
+    if (downKey && yp + h < H) yp+=pMovement;
+    if (upKey && yp + h > 8*H/10) yp-=pMovement;
     //player
     ctx.fillStyle = 'blue';
     ctx.fillRect(xp,yp,w,h)    
