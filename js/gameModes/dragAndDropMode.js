@@ -1,6 +1,6 @@
 //EXPORTS
-import * as Prop from "../class/propClass.js"
-import * as EcoPoint from "../class/ecoPointClass.js"
+import Prop from "../class/propClass.js"
+import EcoPoint from "../class/ecoPointClass.js"
 
 
 //GLOBALS
@@ -15,19 +15,16 @@ let ecopoints = [];
 let props = []; // props array of objects
 let propMoving = {};
 
-//FEEDING CLASS
-Prop.canvasInfo(ctx,H,W)
-EcoPoint.canvasInfo(ctx,H,W)
-
 //TEST OBJECTS
-ecopoints.push(EcoPoint.createEcoPoint(10, 10, 100, 100, `..\\media\\props\\plasticBleach.png`, 'metal', 'metalEcoPoint'))
-ecopoints.push(EcoPoint.createEcoPoint(200, 10, 100, 100, `..\\media\\props\\plasticBleach.png`, 'papel', 'metalEcoPoint'))
+ecopoints.push(new EcoPoint(10, 10, 100, 100, `..\\media\\props\\plasticBleach.png`, 'metal', 'metalEcoPoint', ctx))
+ecopoints.push(new EcoPoint(200, 10, 100, 100, `..\\media\\props\\plasticBleach.png`, 'papel', 'metalEcoPoint', ctx))
 
-props.push(Prop.createProp(50, 50, `..\\media\\props\\glassWineFull.png`, "vidro", "trash"))
-props.push(Prop.createProp(50, 50, `..\\media\\props\\metalCanSoda.png`, "metal", "can"))
-props.push(Prop.createProp(50, 50, `..\\media\\props\\plasticPop4.png`, "papel", "trash"))
-props.push(Prop.createProp(50, 50, `..\\media\\props\\plasticBleach.png`, "outros", "trash"))
+props.push(new Prop(50, 50, `..\\media\\props\\glassWineFull.png`, "vidro", "trash", H, W, ctx))
+props.push(new Prop(50, 50, `..\\media\\props\\metalCanSoda.png`, "metal", "can", H, W, ctx))
+props.push(new Prop(50, 50, `..\\media\\props\\plasticPop4.png`, "papel", "trash", H, W, ctx))
+props.push(new Prop(50, 50, `..\\media\\props\\plasticBleach.png`, "outros", "trash", H, W, ctx))
 
+//FIRST DRAW
 ecopoints.forEach((ecopoint) => {
     ecopoint.draw()
 })
@@ -37,6 +34,7 @@ props.forEach((prop) => {
 
 //FUNCTION
 function render() {
+    console.log("oi");
     ctx.clearRect(0, 0, W, H)
     ecopoints.forEach((ecopoint) => {
         ecopoint.update()
@@ -66,9 +64,24 @@ function correctPosition(prop, ecopoints) {
         if ((ecopoint.x < prop.x) && (ecopoint.y < prop.y) && (ecopoint.x + ecopoint.w > prop.x + prop.w) && (ecopoint.y + ecopoint.h > prop.y + prop.h))
             if (ecopoint.type == prop.type)
                 props.pop()
-            else
-                console.log("tente novamente");
+            else {
+                ecopoint.shake = true
+                let shake = setInterval(() => { render() }, 40)
+                setTimeout(() => { clearTimeout(shake); ecopoint.shake = false }, 5000)
+            }
+
     })
+}
+
+function verifyObjectInRange(propMoving) {
+    if (propMoving.x < 0)
+        propMoving.x = 0
+    if (propMoving.x > W - propMoving.w)
+        propMoving.x = W - propMoving.w
+    if (propMoving.y < 0)
+        propMoving.y = 0
+    if (propMoving.y > H - propMoving.h)
+        propMoving.y = H - propMoving.h
 }
 
 // EVENTS
@@ -93,6 +106,7 @@ canvas.addEventListener('mousemove', (e) => {
 canvas.addEventListener('mouseout', () => {
     propMoving.h = propMoving.h / 1.5
     propMoving.w = propMoving.w / 1.5
+    verifyObjectInRange(propMoving)
     propMoving = {}
     render()
     isMoving = false;
@@ -104,8 +118,11 @@ window.addEventListener('mouseup', () => {
     propMoving.x += propMoving.w / 3
     propMoving.y += propMoving.h / 3
     correctPosition(propMoving, ecopoints)
+    verifyObjectInRange(propMoving)
     if (propMoving)
         propMoving = {}
     render()
     isMoving = false;
 });
+
+render()
