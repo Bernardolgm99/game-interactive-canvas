@@ -6,9 +6,9 @@ const H = canvas.height;
 //GLOBALS
 //trash
 class Prop {
-    constructor(h, w, img, type, name, x, y) {
+    constructor(h, img, type, name, x, y) {
         this.h = h;
-        this.w = w;
+        this.w = h;
         this.img = img;
         this.type = type;
         this.name = name;
@@ -24,6 +24,7 @@ class Prop {
         ctx.closePath()
         if(colision){
             ctx.fillStyle = 'gray';
+            console.log(trash[indexColision])
             ctx.fillRect(trash[indexColision].x, trash[indexColision].y, trash[indexColision].w, trash[indexColision].h)
             if(!trash[indexColision].ground){
                 trash[indexColision].y += 0.1
@@ -34,9 +35,9 @@ class Prop {
     }
 }
 class Shot {
-    constructor (h, w, img){
+    constructor (h, img){
         this.h = h;
-        this.w = w;
+        this.w = h;
         this.img = img;
         this.x = xp;
         this.y = yp;
@@ -45,13 +46,14 @@ class Shot {
         ////SHHOT
         if (startShoot){
             ctx.fillStyle = "green"
-            ctx.fillRect(this.x, this.y, 10, 10)
+            ctx.fillRect(this.x, this.y, sizeRock, sizeRock)
             this.x += this.dx
             this.y += this.dy 
             this.dy += 0.05
             shot.checkColison()
             if (this.y >= yp + 70 || colision){
-                startShoot = false             
+                startShoot = false  
+                sizeRock = Math.floor(Math.random()* (18 - 10)+10)           
             }
             /* console.log(trashArray[indexColision].x) */
         }
@@ -64,7 +66,7 @@ class Shot {
 
             scale = (Math.sqrt((Math.pow(yp-yr, 2) + Math.pow(xp-xr, 2))))/40;
             if(scale >= 7.7 && !easterEgg) scale = 8
-            else scale = scale * 5
+            else if(easterEgg) scale = scale * 5
 
             //faceing 
             if (angle <= -1.5 ||  angle >= 1.4){
@@ -103,12 +105,12 @@ class Shot {
     }
 }
 class Trees {
-    constructor(h){
+    constructor(h, img, x, y){
         this.h = h;
         this.w = 2*h/3;
-        this.img = 'red';
-        this.x = Math.floor(Math.random() * W);
-        this.y = Math.floor(Math.random() * (7*H/10 - 6*H/10))
+        this.img = img;
+        this.x = x;
+        this.y = y;
     }
     render(){
         ctx.fillStyle = this.img;
@@ -127,13 +129,15 @@ let angle, startShoot = false, scale;
 //trash
 let trash = [], quantity = 10;
 //shot
-let shot = new Shot(10, 10, 'green')
+let sizeRock = Math.floor(Math.random()* (15 - 10)+10)
+let shot = new Shot(sizeRock, sizeRock, 'green')
 //checkColisons
 let colision = false, indexColision, colisionPlayer = false;
 let size = Math.floor(Math.random() * (50 - 20) + 20), ground = false
 let xrSpace, yrSpace;
 //arvores
 let trees = []
+
 
 //keys EVENTS
 window.addEventListener('keydown', e => {
@@ -160,7 +164,7 @@ window.addEventListener('keyup', e => {
     if (e.key == 'ArrowDown' || e.keyCode == 83) downKey = false;
     if (e.key == 'ArrowUp' || e.keyCode == 87) upKey = false;
     if (e.keyCode == 32) spaceKey = false;
-    });
+});
 //canvas EVENTS
 canvas.addEventListener('click', e => {
     let xr = e.offsetX; let yr = e.offsetY;
@@ -170,29 +174,75 @@ canvas.addEventListener('mousemove', e => {
     xrSpace = e.offsetX; yrSpace = e.offsetY;
 })     
 
+let trashSize = 50;
 function trashRender(){
     //escolher arvore
     trees.forEach((tree) => {
         //criar lixo na arvore, x vezes
         let nTimes = Math.floor(Math.random()*(6 - 2)+ 2)
         for (var i = 0; i < nTimes; i++){
-            let x = tree.x + Math.random() * (tree.w- 50) // [MIN;MAX] = MIN + random*(MAX-MIN)
-            let y = tree.y + Math.random() * (tree.h- 50)
-            trash.push(new Prop(50,50, 'black', 'metal', 'trash', x, y))
+            let x = tree.x + Math.random() * (tree.w- trashSize) // [MIN;MAX] = MIN + random*(MAX-MIN)
+            let y = tree.y + Math.random() * (tree.h- trashSize)
+            trash.push(new Prop(trashSize, 'black', 'metal', 'trash', x, y))
         }
         //x && y, de momento aparece aleatoriamente no canvas
+        //
     })
     
 }
-
+let oldTree = {}, tree ={}
 function treesRender(){
-    let nTimes = Math.floor(Math.random()*(4 - 2)+ 2)
-    nTimes = 1
-    for(let i = 0; i < nTimes; i++){
-        let sizes = Math.random() * (H - 2*H/10)
-        trees.push(new Trees(sizes, 'red'))
-        //check position of other trees
+    /* let nTimes = Math.floor(Math.random()*(4 - 2)+ 2) //HOW MANY TIMES */
+    let nTimes = 2
+    for(let i = 0; i <= nTimes; i++){
+        let sizes = Math.random() * (8*H/10 - 7*H/10) + 7*H/10
+        x = Math.floor(Math.random()*W);
+        y = Math.floor(Math.random()*(9*H/10 - 2*H/10)+2*H/10);
+        tree = new Trees(sizes, 'red', x, y)
+        trees.push(tree)
+
+        //check positions
+        trees.forEach((tree)=>{
+            console.log(tree, oldTree)
+        //se estiver fora do canvas
+            if(tree.x + tree.w > W){
+                let diference = (tree.x + tree.w) - W
+                tree.x = tree.x - diference
+            } 
+            if(tree.y + tree.h > 8*H/10) {
+                let diference = (tree.y + tree.h) - 8*H/10
+                tree.y = tree.y - diference
+            }
+        //se estiver em cima de outra
+            if(trees.length > 1){
+                if(tree.x + tree.w > oldTree.x){
+                    let diference = (tree.x + tree.w) - oldTree
+                    tree.x = tree.x - diference
+                } 
+            }
+            oldTree = tree
+            oldTree.img = 'gray'
+            /* if(tree.x > 0 || tree.x + tree.w > W ||
+               tree.y > 0 || tree.y + tree.h > H){
+                console.log('error')
+                x = Math.floor(Math.random()*W) - this.w;
+                y = Math.floor(Math.random()*9*H/10) - this.h;
+            } */
+            /* else {
+                ctx.fillStyle = 'green'
+                ctx.fillRect(this.x, this.y, this.h, this.w) 
+            } */
+            
+            /* if (tree.x + tree.w < oldTree.x ||
+                tree.x > oldTree.x + oldTree.w ||
+                tree.y + tree.h < oldTree.y ||
+                tree.y > oldTree.y + oldTree.h){
+            } else {
+                console.log(nTimes, 'tree colision detected')
+            } */
+        })
     }
+        
 }
 //trash placement calculator
 
@@ -203,8 +253,8 @@ function render() {
     //clear the Canvas
     ctx.clearRect(0, 0, W, H);
 
-    trees.forEach((tree)=>{tree.render()})
-    trash.forEach((prop) => {prop.update()})
+    trees.forEach((tree)=>{ tree.render() })
+    trash.forEach((prop) => { prop.update() })
     shot.update()
     
     //player boundering
