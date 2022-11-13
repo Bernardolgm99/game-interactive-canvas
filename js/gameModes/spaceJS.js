@@ -4,7 +4,6 @@ const W = canvas.width;
 const H = canvas.height;
 
 //GLOBALS
-//trash
 class Prop {
     constructor(h, img, type, name, x, y) {
         this.h = h;
@@ -28,14 +27,24 @@ class Prop {
             ctx.fillRect(trash[indexColision].x, trash[indexColision].y, trash[indexColision].w, trash[indexColision].h)
             if(!trash[indexColision].ground){
                 trash[indexColision].y += 0.1
-                let finishPath = Math.floor((Math.random()*(H + 8*H/10))-(8*H/10))
-                if(trash[indexColision].y >= finishPath) trash[indexColision].ground = true, colision = false
-                if(colisionPlayer) playerBag.push(trash[indexColision])//player
+                let finishPath = Math.floor(Math.random()*H+8*H/10)
+                trash[indexColision].colisionPlayer()
+                if(trash[indexColision].y >= finishPath || colisionPlayer) trash[indexColision].ground = true, colision = false;
+                if(colisionPlayer && trash[indexColision].ground) playerBag.push(trash[indexColision]); colisionPlayer = false; //atirar faz com que adicione a mochila no que acertou
             }
         }
     }
+    colisionPlayer(){
+        for(let i = 0; i < trash.length; i++){
+            if (xp + w < trash[indexColision].x || xp > trash[indexColision].x + trashSize || yp + w < trash[indexColision].y || yp > trash[indexColision].y + trashSize){
+            } else {colisionPlayer = true;break}
+        };
+        console.log(colisionPlayer)
+        if(colisionPlayer){playerBag.push(trash[indexColision]); ctx.clearRect(trash[indexColision].x,trash[indexColision].y,trash[indexColision].w,trash[indexColision].h);}
+        console.log(playerBag)
+    }
 }
-//fazer ricochet
+//fazer ricochet nas paredes
 class Shot {
     constructor (h, img){
         this.h = h;
@@ -98,6 +107,7 @@ class Shot {
             } else {
                 colision = true;
                 indexColision = i
+                console.log(colision)
                 break
             }
         };
@@ -123,7 +133,7 @@ class Trees {
 }
 
 //player position and atributes
-let xp = 100, yp = 800, w= 50, h= 70, pMovement = 1.3;
+let xp = 100, yp = 800, w= 50, h= 70, pMovement = 1.3, playerBag = [];
 //keys
 let rightKey = false, leftKey = false, upKey = false, downKey = false, fleft = false, spaceKey = false, easterEgg = false;
 //shot
@@ -136,7 +146,6 @@ let trash = [], trashSize = Math.floor(Math.random()*(40 - 25) + 25);
 let colision = false, indexColision, colisionPlayer = false, xrSpace, yrSpace;
 //arvores
 let trees = []
-
 
 //keys EVENTS
 window.addEventListener('keydown', e => {
@@ -178,7 +187,6 @@ function trashRender(){
     //escolher arvore
     trees.forEach((tree) => {
         //criar lixo na arvore, x vezes
-        console.log(tree.x, tree.hwMin);
         let nTimes = Math.floor(Math.random()*(6 - 2)+ 2)
         for (let i = 0; i < nTimes; i++){
             let x = Math.random() * (tree.hwMax- trashSize)+ tree.hwMin // [MIN;MAX] = MIN + random*(MAX-ITEM)
@@ -209,7 +217,7 @@ function treesRender(){
             tree.y = tree.y - diference, tree.hhMin = tree.hhMin - diference
         }
         trees.push(tree)
-    }}
+}}
 //trash placement calculator
 
 trees.forEach((tree)=>{ tree.update() })
@@ -223,7 +231,6 @@ function render() {
     trees.forEach((tree)=>{ tree.update() })
     trash.forEach((prop) => { prop.update() })
     shot.update()
-    
     //player boundering
     if (rightKey && xp + w < W) xp+=pMovement;
     if (leftKey && xp > 0) xp-=pMovement;
