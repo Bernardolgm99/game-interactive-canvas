@@ -24,11 +24,13 @@ class Prop {
         ctx.closePath()
         if(colision){
             ctx.fillStyle = 'gray';
+            //lixo saltar
             ctx.fillRect(trash[indexColision].x, trash[indexColision].y, trash[indexColision].w, trash[indexColision].h)
             if(!trash[indexColision].ground){
                 trash[indexColision].y += 0.1
-                if(trash[indexColision].y >= yp + trashSize) trash[indexColision].ground = true, colision = false
-                if(colisionPlayer) playerBag.push(trash[indexColision])
+                let finishPath = Math.floor((Math.random()*(H + 8*H/10))-(8*H/10))
+                if(trash[indexColision].y >= finishPath) trash[indexColision].ground = true, colision = false
+                if(colisionPlayer) playerBag.push(trash[indexColision])//player
             }
         }
     }
@@ -51,11 +53,10 @@ class Shot {
             this.y += this.dy 
             this.dy += 0.05
             shot.checkColison()
-            if (this.y >= yp + 70 || colision){
+            if (this.y >= yp + 50 || colision){
                 startShoot = false  
                 sizeRock = Math.floor(Math.random()* (18 - 10)+10)           
             }
-            /* console.log(trashArray[indexColision].x) */
         }
     }
     //shots calcuations
@@ -92,8 +93,8 @@ class Shot {
             if (this.x + sizeRock < trash[i].x ||
                 this.x > trash[i].x + trashSize ||
                 this.y + sizeRock < trash[i].y ||
-                this.y > trash[i].y + trashSize){
-               
+                this.y > trash[i].y + trashSize ||
+                trash[i].ground == true){
             } else {
                 colision = true;
                 indexColision = i
@@ -103,18 +104,21 @@ class Shot {
     }
 }
 class Trees {
+    img = new Image();
     constructor(h, img, x, y){
         this.h = h;
         this.w = 2*h/3;
-        this.img = img;
+        this.img.src = img;
         this.x = x;
         this.y = y;
+        this.hwMin = x+ 2*this.w/11;
+        //console.log(h, this.h);
+        this.hwMax = this.w - 3*this.w/10;
+        this.hhMin = y + this.h/10;
+        this.hhMax = h- 4*this.h/11;
     }
-    render(){
-        ctx.fillStyle = this.img;
-        ctx.beginPath();
-        ctx.fillRect(this.x, this.y, this.w, this.h);
-        ctx.closePath()
+    update(){
+        ctx.drawImage(this.img, this.x, this.y, this.w, this.h)
     }
 }
 
@@ -167,20 +171,20 @@ canvas.addEventListener('click', e => {
 }) 
 canvas.addEventListener('mousemove', e => {
     xrSpace = e.offsetX; yrSpace = e.offsetY;
-})     
+})
 
+//function
 function trashRender(){
     //escolher arvore
     trees.forEach((tree) => {
         //criar lixo na arvore, x vezes
+        console.log(tree.x, tree.hwMin);
         let nTimes = Math.floor(Math.random()*(6 - 2)+ 2)
-        for (var i = 0; i < nTimes; i++){
-            let x = tree.x + Math.random() * (tree.w- trashSize) // [MIN;MAX] = MIN + random*(MAX-MIN)
-            let y = tree.y + Math.random() * (tree.h- trashSize)
+        for (let i = 0; i < nTimes; i++){
+            let x = Math.random() * (tree.hwMax- trashSize)+ tree.hwMin // [MIN;MAX] = MIN + random*(MAX-ITEM)
+            let y = Math.random() * (tree.hhMax- trashSize) + tree.hhMin
             trash.push(new Prop(trashSize, 'black', 'metal', 'trash', x, y))
         }
-        //x && y, de momento aparece aleatoriamente no canvas
-        //
     })
     
 }
@@ -190,32 +194,33 @@ function treesRender(){
     if(nTimes > 4) nTimes = 4; //fazer mais provavel que sejam 4 arvores
     let spaceTree = Math.floor(W/nTimes)
     for(let i = 1; i <= nTimes; i++){
-        let sizes = Math.random() * (8*H/10 - 7*H/10) + 7*H/10
-        x = Math.floor(Math.random()*(spaceTree*i - spaceTree*(i-1)) + spaceTree*(i-1));
-        y = Math.floor(Math.random()*(9*H/10 - 2*H/10)+2*H/10);
-        tree = new Trees(sizes, 'red', x, y)
-        trees.push(tree)
-
+        let sizes = Math.floor(Math.random() * (8*H/10 - 7*H/10) + 7*H/10)
+        let x = Math.floor(Math.random()*(spaceTree*i - spaceTree*(i-1)) + spaceTree*(i-1));
+        let y = Math.floor(Math.random()*(9*H/10 - 2*H/10)+2*H/10);
+        tree = new Trees(sizes, '..\\media/pixel-tree1.png', x, y)
+        
         //se estiver fora do espaço delimitado para ele
         if(tree.x + tree.w > spaceTree*i){
             let diference = (tree.x + tree.w) - spaceTree*i
-            tree.x = tree.x - diference
+            tree.x = tree.x - diference, tree.hwMin = tree.hwMin - diference
         } 
         if(tree.y + tree.h > 8*H/10) {
             let diference = (tree.y + tree.h) - 8*H/10
-            tree.y = tree.y - diference
+            tree.y = tree.y - diference, tree.hhMin = tree.hhMin - diference
         }
+        trees.push(tree)
     }}
 //trash placement calculator
 
+trees.forEach((tree)=>{ tree.update() })
 treesRender()
 trashRender()
 
 function render() {
     //clear the Canvas
     ctx.clearRect(0, 0, W, H);
-
-    trees.forEach((tree)=>{ tree.render() })
+    
+    trees.forEach((tree)=>{ tree.update() })
     trash.forEach((prop) => { prop.update() })
     shot.update()
     
