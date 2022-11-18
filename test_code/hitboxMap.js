@@ -76,8 +76,7 @@ function render() {
     ctx.clearRect(0, 0, W, H)
     //base_image.src = `img/map.png`;
     //console.log(imgX, imgY)
-     ctx.drawImage(hitbox_image, imgX, imgY, dimensionX, dimensionY, 0, 0, 500, 500) 
-     ctx.drawImage(base_image,  imgX, imgY, dimensionX, dimensionY, 0, 0, 500, 500);  
+    ctx.drawImage(base_image,  imgX, imgY, dimensionX, dimensionY, 0, 0, 500, 500);  
 
     //TEST BALL
     ctx.beginPath()
