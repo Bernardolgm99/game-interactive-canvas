@@ -12,6 +12,7 @@ class Prop {
         this.type = type;
         this.name = name;
         this.ground = false;
+        this.colisionPlayer = false;
         this.x = x;
         this.y = y;
     }
@@ -27,21 +28,30 @@ class Prop {
             ctx.fillRect(trash[indexColision].x, trash[indexColision].y, trash[indexColision].w, trash[indexColision].h)
             if(!trash[indexColision].ground){
                 trash[indexColision].y += 0.1
-                let finishPath = Math.floor(Math.random()*H+8*H/10)
-                trash[indexColision].colisionPlayer()
-                if(trash[indexColision].y >= finishPath || colisionPlayer) trash[indexColision].ground = true, colision = false;
-                if(colisionPlayer && trash[indexColision].ground) playerBag.push(trash[indexColision]); colisionPlayer = false; //atirar faz com que adicione a mochila no que acertou
+                let finishPath = Math.floor(Math.random()*H+8*H/10), garbage = trash[indexColision]
+                trash[indexColision].colPlayer(garbage)
+                //console.log(trash[indexColision]);
+                if(garbage.y >= finishPath || garbage.colisionPlayer) garbage.ground = true, colision = false;
+                if(garbage.colisionPlayer && garbage.ground) garbage.colisionPlayer = false;
             }
         }
     }
-    colisionPlayer(){
+    colPlayer(garbage){
+        let id = 0;
         for(let i = 0; i < trash.length; i++){
-            if (xp + w < trash[indexColision].x || xp > trash[indexColision].x + trashSize || yp + w < trash[indexColision].y || yp > trash[indexColision].y + trashSize){
-            } else {colisionPlayer = true;break}
+            if (xp + w < garbage.x || xp > garbage.x + trashSize || yp + w < garbage.y || yp > garbage.y + trashSize){
+            } else {garbage.colisionPlayer = true; break;}
         };
-        console.log(colisionPlayer)
-        if(colisionPlayer){playerBag.push(trash[indexColision]); ctx.clearRect(trash[indexColision].x,trash[indexColision].y,trash[indexColision].w,trash[indexColision].h);}
-        console.log(playerBag)
+        if(garbage.colisionPlayer){
+            playerBag.push(garbage);
+            garbage.colisionPlayer = true; 
+            //take out trash
+            /* for( let i = 0; i < trash.length; i++){
+                if(trash[i] == garbage){ id = i; break;}
+                console.log(id)
+            } */
+            removeTrash(garbage)
+        }
     }
 }
 //fazer ricochet nas paredes
@@ -143,16 +153,16 @@ let angle, startShoot = false, scale;
 //trash
 let trash = [], trashSize = Math.floor(Math.random()*(40 - 25) + 25);
 //checkColisons
-let colision = false, indexColision, colisionPlayer = false, xrSpace, yrSpace;
+let colision = false, indexColision, xrSpace, yrSpace;//colisionPlayer = false
 //arvores
 let trees = []
 
 //keys EVENTS
 window.addEventListener('keydown', e => {
-    if (e.key == 'ArrowRight' || e.keyCode == 68) rightKey = true, fleft = false;
-    if (e.key == 'ArrowLeft' || e.keyCode == 65) leftKey = true, fleft = true;
-    if (e.key == 'ArrowDown' || e.keyCode == 83) downKey = true;
-    if (e.key == 'ArrowUp' || e.keyCode == 87) upKey = true;
+    if (e.key == 'ArrowRight' || e.keyCode == 68) rightKey = true, fleft = false, checkGround();
+    if (e.key == 'ArrowLeft' || e.keyCode == 65) leftKey = true, fleft = true, checkGround();
+    if (e.key == 'ArrowDown' || e.keyCode == 83) downKey = true, checkGround();
+    if (e.key == 'ArrowUp' || e.keyCode == 87) upKey = true, checkGround();
     if (e.keyCode == 32){
         spaceKey = true;
         shot.shotsCalculator(xrSpace, yrSpace)
@@ -167,10 +177,10 @@ window.addEventListener('keydown', e => {
     e.preventDefault();
 });
 window.addEventListener('keyup', e => {
-    if (e.key == 'ArrowRight' || e.keyCode == 68) rightKey = false;
-    if (e.key == 'ArrowLeft' || e.keyCode == 65) leftKey = false;
-    if (e.key == 'ArrowDown' || e.keyCode == 83) downKey = false;
-    if (e.key == 'ArrowUp' || e.keyCode == 87) upKey = false;
+    if (e.key == 'ArrowRight' || e.keyCode == 68) rightKey = false, checkGround();
+    if (e.key == 'ArrowLeft' || e.keyCode == 65) leftKey = false, checkGround();
+    if (e.key == 'ArrowDown' || e.keyCode == 83) downKey = false, checkGround();
+    if (e.key == 'ArrowUp' || e.keyCode == 87) upKey = false, checkGround();
     if (e.keyCode == 32) spaceKey = false;
 });
 //canvas EVENTS
@@ -183,6 +193,13 @@ canvas.addEventListener('mousemove', e => {
 })
 
 //function
+function removeTrash(garbage){
+    for( let i = 0; i < trash.length; i++){
+        if(trash[i] == garbage){ id = i; break;}
+    }
+    console.log(id)
+    trash.splice(id, 1)
+}
 function trashRender(){
     //escolher arvore
     trees.forEach((tree) => {
@@ -195,6 +212,16 @@ function trashRender(){
         }
     })
     
+}
+function checkGround(){
+    console.log(trash, playerBag);
+    trash.forEach(garbage => {
+        if(indexColision != undefined && garbage.colisionPlayer){
+            garbage.colPlayer(garbage)
+        }
+    })
+        
+    console.log(playerBag)
 }
 function treesRender(){
     let tree ={}
@@ -219,8 +246,6 @@ function treesRender(){
         trees.push(tree)
 }}
 //trash placement calculator
-
-trees.forEach((tree)=>{ tree.update() })
 treesRender()
 trashRender()
 
