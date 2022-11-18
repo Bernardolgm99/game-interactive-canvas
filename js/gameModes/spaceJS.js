@@ -4,6 +4,10 @@ const W = canvas.width;
 const H = canvas.height;
 
 //GLOBALS
+//add dash
+//points
+//last checks
+//change bag for props bernardo
 class Prop {
     constructor(h, img, type, name, x, y) {
         this.h = h;
@@ -15,6 +19,7 @@ class Prop {
         this.colisionPlayer = false;
         this.x = x;
         this.y = y;
+        this.fall = false
     }
     update() {
         ctx.clearRect(this.x, this.y, this.w, this.h)
@@ -23,34 +28,45 @@ class Prop {
         ctx.fillRect(this.x, this.y, this.w, this.h)
         ctx.closePath()
         if(colision){
-            ctx.fillStyle = 'gray';
-            //lixo saltar
-            ctx.fillRect(trash[indexColision].x, trash[indexColision].y, trash[indexColision].w, trash[indexColision].h)
-            if(!trash[indexColision].ground){
-                trash[indexColision].y += 0.1
-                let finishPath = Math.floor(Math.random()*H+8*H/10), garbage = trash[indexColision]
-                trash[indexColision].colPlayer(garbage)
-                //console.log(trash[indexColision]);
-                if(garbage.y >= finishPath || garbage.colisionPlayer) garbage.ground = true, colision = false;
-                if(garbage.colisionPlayer && garbage.ground) garbage.colisionPlayer = false;
+            if (this.fall){
+                ctx.fillStyle = 'gray';
+                let finishPath = yp + trashSize
+                ctx.fillRect(this.x, this.y, this.w, this.h)
+                if(!this.ground){
+                    this.x += this.dx
+                    this.y += this.dy 
+                    this.dy += 0.05
+                    //rebounds canvas
+                    //direita
+                    if (this.x + this.w > W || this.x >= 0 || this.y + this.h > H){
+                    } else {this.dx = -2*this.dx/3}
+                    this.colPlayer()
+                    if(this.y >= finishPath || this.colisionPlayer) this.ground = true, colision = false;
+                    if(this.colisionPlayer && this.ground) this.colisionPlayer = false;
+                }
             }
         }
     }
-    colPlayer(garbage){
+    colPlayer(){
         let id = 0;
         for(let i = 0; i < trash.length; i++){
-            if (xp + w < garbage.x || xp > garbage.x + trashSize || yp + w < garbage.y || yp > garbage.y + trashSize){
-            } else {garbage.colisionPlayer = true; break;}
+            if (xp + w < this.x || xp > this.x + trashSize || yp + w < this.y || yp > this.y + trashSize){
+            } else {this.colisionPlayer = true; break;}
         };
-        if(garbage.colisionPlayer){
-            playerBag.push(garbage);
-            garbage.colisionPlayer = true; 
-            //take out trash
-            /* for( let i = 0; i < trash.length; i++){
-                if(trash[i] == garbage){ id = i; break;}
-                console.log(id)
-            } */
-            removeTrash(garbage)
+        if(this.colisionPlayer){
+            playerBag.push(this); 
+            this.removeTrash()//remove trash
+        }
+    }
+    calculateTrag(dx, dy){
+        this.dx = dx/4
+        this.dy = 3*dy/4
+    }
+    removeTrash(){
+        for( let i = 0; i < trash.length; i++){
+            if(trash[i] == this){
+                trash.splice(i, 1);
+                break;}
         }
     }
 }
@@ -72,8 +88,13 @@ class Shot {
             this.y += this.dy 
             this.dy += 0.05
             shot.checkColison()
+            if (this.x + this.w > W || this.x >= 0){
+            } else if(this.y >= H){
+                this.dy = -this.dy
+            } else {this.dx = -this.dx}
             if (this.y >= yp + 50 || colision){
-                startShoot = false  
+                startShoot = false;
+                dashAvailabe = false; 
                 sizeRock = Math.floor(Math.random()* (18 - 10)+10)           
             }
         }
@@ -83,10 +104,11 @@ class Shot {
         if (!(startShoot)){
             angle = Math.atan2(yr - yp, xr-xp)
             startShoot = true;
+            dashAvailabe = true;
 
             scale = (Math.sqrt((Math.pow(yp-yr, 2) + Math.pow(xp-xr, 2))))/40;
             if(scale >= 7.7 && !easterEgg) scale = 8
-            else if(easterEgg) scale = scale * 5
+            else if(easterEgg) scale = scale * 2
 
             //faceing 
             if (angle <= -1.5 ||  angle >= 1.4){
@@ -116,8 +138,9 @@ class Shot {
                 trash[i].ground == true){
             } else {
                 colision = true;
+                trash[i].calculateTrag(this.dx, this.dy)
+                trash[i].fall =true
                 indexColision = i
-                console.log(colision)
                 break
             }
         };
@@ -132,7 +155,6 @@ class Trees {
         this.x = x;
         this.y = y;
         this.hwMin = x+ 2*this.w/11;
-        //console.log(h, this.h);
         this.hwMax = this.w - 3*this.w/10;
         this.hhMin = y + this.h/10;
         this.hhMax = h- 4*this.h/11;
@@ -149,9 +171,9 @@ let rightKey = false, leftKey = false, upKey = false, downKey = false, fleft = f
 //shot
 let sizeRock = Math.floor(Math.random()* (15 - 10)+10), shot = new Shot(sizeRock, 'green');
 //calculate Shots
-let angle, startShoot = false, scale;
+let angle, startShoot = false, dashAvailabe = false, scale;
 //trash
-let trash = [], trashSize = Math.floor(Math.random()*(40 - 25) + 25);
+let trash = [], trashSize = Math.floor(Math.random()*(40 - 30) + 30);
 //checkColisons
 let colision = false, indexColision, xrSpace, yrSpace;//colisionPlayer = false
 //arvores
@@ -163,10 +185,7 @@ window.addEventListener('keydown', e => {
     if (e.key == 'ArrowLeft' || e.keyCode == 65) leftKey = true, fleft = true, checkGround();
     if (e.key == 'ArrowDown' || e.keyCode == 83) downKey = true, checkGround();
     if (e.key == 'ArrowUp' || e.keyCode == 87) upKey = true, checkGround();
-    if (e.keyCode == 32){
-        spaceKey = true;
-        shot.shotsCalculator(xrSpace, yrSpace)
-    }
+    if (e.keyCode == 32) spaceKey = true; dashAvailabe == true;
     if(e.keyCode == 85){
         if(!easterEgg){
             easterEgg = true;
@@ -181,7 +200,7 @@ window.addEventListener('keyup', e => {
     if (e.key == 'ArrowLeft' || e.keyCode == 65) leftKey = false, checkGround();
     if (e.key == 'ArrowDown' || e.keyCode == 83) downKey = false, checkGround();
     if (e.key == 'ArrowUp' || e.keyCode == 87) upKey = false, checkGround();
-    if (e.keyCode == 32) spaceKey = false;
+    if (e.keyCode == 32) spaceKey = false, dashAvailabe = false;
 });
 //canvas EVENTS
 canvas.addEventListener('click', e => {
@@ -193,13 +212,6 @@ canvas.addEventListener('mousemove', e => {
 })
 
 //function
-function removeTrash(garbage){
-    for( let i = 0; i < trash.length; i++){
-        if(trash[i] == garbage){ id = i; break;}
-    }
-    console.log(id)
-    trash.splice(id, 1)
-}
 function trashRender(){
     //escolher arvore
     trees.forEach((tree) => {
@@ -214,15 +226,13 @@ function trashRender(){
     
 }
 function checkGround(){
-    console.log(trash, playerBag);
+   /*  console.log(trash, playerBag); */
     trash.forEach(garbage => {
-        if(indexColision != undefined && garbage.colisionPlayer){
-            garbage.colPlayer(garbage)
-        }
+        garbage.colPlayer()
     })
         
-    console.log(playerBag)
-}
+/*     console.log(playerBag)
+ */}
 function treesRender(){
     let tree ={}
     let nTimes = Math.floor(Math.random()*(6 - 3)+ 3) //HOW MANY TIMES
@@ -256,7 +266,7 @@ function render() {
     trees.forEach((tree)=>{ tree.update() })
     trash.forEach((prop) => { prop.update() })
     shot.update()
-    //player boundering
+    //player boundering;
     if (rightKey && xp + w < W) xp+=pMovement;
     if (leftKey && xp > 0) xp-=pMovement;
     if (downKey && yp + h < H) yp+=pMovement;
