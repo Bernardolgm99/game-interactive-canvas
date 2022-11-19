@@ -5,9 +5,9 @@ const H = canvas.height;
 
 //GLOBALS
 //add dash
-//points
-//last checks
+//points 
 //change bag for props bernardo
+//last checks
 class Prop {
     constructor(h, img, type, name, x, y) {
         this.h = h;
@@ -48,7 +48,6 @@ class Prop {
         }
     }
     colPlayer(){
-        let id = 0;
         for(let i = 0; i < trash.length; i++){
             if (xp + w < this.x || xp > this.x + trashSize || yp + w < this.y || yp > this.y + trashSize){
             } else {this.colisionPlayer = true; break;}
@@ -57,6 +56,8 @@ class Prop {
             playerBag.push(this); 
             this.removeTrash()//remove trash
         }
+        //points
+        if(this.colisionPlayer && !this.ground){points += 50} else if(this.colisionPlayer && this.ground){points += 20}
     }
     calculateTrag(dx, dy){
         this.dx = dx/4
@@ -80,18 +81,19 @@ class Shot {
         this.y = yp;
     }
     update() {
-        ////SHHOT
+        //SHHOT
         if (startShoot){
-            ctx.fillStyle = "green"
+            ctx.fillStyle = "blue"
             ctx.fillRect(this.x, this.y, sizeRock, sizeRock)
             this.x += this.dx
             this.y += this.dy 
             this.dy += 0.05
             shot.checkColison()
-            if (this.x + this.w > W || this.x >= 0){
-            } else if(this.y >= H){
-                this.dy = -this.dy
-            } else {this.dx = -this.dx}
+            //add colisions walls canvas
+            if (this.x + this.w < W || this.x < 0){
+            } else {this.dx = -this.dx;}
+            if (this.x + this.w > W || this.x > 0){
+            } else {this.dx = -this.dx;}
             if (this.y >= yp + 50 || colision){
                 startShoot = false;
                 dashAvailabe = false; 
@@ -165,7 +167,7 @@ class Trees {
 }
 
 //player position and atributes
-let xp = 100, yp = 800, w= 50, h= 70, pMovement = 1.3, playerBag = [];
+let xp = 1500, yp = 800, w= 50, h= 70, pMovement = 1.3, playerBag = [], points = 0;
 //keys
 let rightKey = false, leftKey = false, upKey = false, downKey = false, fleft = false, spaceKey = false, easterEgg = false;
 //shot
@@ -262,6 +264,11 @@ trashRender()
 function render() {
     //clear the Canvas
     ctx.clearRect(0, 0, W, H);
+    //points and trash number display
+    ctx.font = "20px Georgia";
+    ctx.fillText(`Points: ${points}`, 10, 30);
+    ctx.font = "20px Georgia";
+    ctx.fillText(`Trash Count: ${playerBag.length}`, 10, 60);
     
     trees.forEach((tree)=>{ tree.update() })
     trash.forEach((prop) => { prop.update() })
