@@ -3,26 +3,45 @@ import Prop from "../class/propClass.js"
 import EcoPoint from "../class/ecoPointClass.js"
 
 
+//SOUNDS
+const missSound = new Audio ("../media/sound/miss.mp3")
+const successSound = new Audio ("../media/sound/success.mp3")
+
 //GLOBALS
-const canvas = document.querySelector('#myCanvas');
-// canvas.width = 500;
-// canvas.height = 500;
-canvas.style.border = '1px solid';
+const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext("2d");
 const W = canvas.width, H = canvas.height;
 let isMoving = false;
 let ecopoints = [];
 let props = []; // props array of objects
 let propMoving = {};
-export default function dragAndDropGame(){
-    //TEST OBJECTS
-    ecopoints.push(new EcoPoint(10, 10, 100, 100, `..\\media\\props\\plasticBleach.png`, 'metal', 'metalEcoPoint', ctx))
-    ecopoints.push(new EcoPoint(200, 10, 100, 100, `..\\media\\props\\plasticBleach.png`, 'papel', 'metalEcoPoint', ctx))
+let background = new Image()
+background.src = "../media/bg/trashBackGround.png";
+background.width = W;
+background.height = H;
+//GAME PLAY
+export default function dragAndDropGame() {
+    //CONFIG DEFINITIONS
+    console.log(localStorage.getItem('volume'));
+    missSound.volume = +localStorage.getItem("volume")
+    successSound.volume = 0.25 * +localStorage.getItem("volume")
 
-    props.push(new Prop(50, 50, `..\\media\\props\\glassWineFull.png`, "vidro", "trash", H, W, ctx))
-    props.push(new Prop(50, 50, `..\\media\\props\\metalCanSoda.png`, "metal", "can", H, W, ctx))
-    props.push(new Prop(50, 50, `..\\media\\props\\plasticPop4.png`, "papel", "trash", H, W, ctx))
-    props.push(new Prop(50, 50, `..\\media\\props\\plasticBleach.png`, "outros", "trash", H, W, ctx))
+    let player = JSON.parse(localStorage.getItem('player'))
+    
+    //TEST OBJECTS
+    
+    // props = player.h
+    ecopoints.push(new EcoPoint(100+100, 270, 150, 180, `..\\media\\props\\trashBinYellow.png`, 'metal', 'metalEcoPoint', ctx))
+    ecopoints.push(new EcoPoint(100+400, 270, 150, 180, `..\\media\\props\\trashBinBlue.png`, 'paper', 'paperEcoPoint', ctx))
+    ecopoints.push(new EcoPoint(100+700, 270, 150, 180, `..\\media\\props\\trashBinGreen.png`, 'glass', 'glassEcoPoint', ctx))
+    ecopoints.push(new EcoPoint(100+1000, 270, 150, 180, `..\\media\\props\\trashBin.png`, 'others', 'othersEcoPoint', ctx))
+
+    props.push(new Prop(50, 50, "..\\media\\props\\glassWineFull.png", "glass", "trash", H, W, ctx))
+    props.push(new Prop(50, 50, "..\\media\\props\\metalCanSoda.png", "metal", "can", H, W, ctx))
+    props.push(new Prop(50, 50, "..\\media\\props\\plasticPop4.png", "metal", "trash", H, W, ctx))
+    props.push(new Prop(50, 50, "..\\media\\props\\plasticBleach.png", "metal", "trash", H, W, ctx))
+    localStorage.setItem('player', JSON.stringify({name:"JOHN DOE", point: 100, bag: props}))
+
 
     //FIRST DRAW
     ecopoints.forEach((ecopoint) => {
@@ -35,8 +54,9 @@ export default function dragAndDropGame(){
 
 //FUNCTION
 function render() {
-    console.log("oi");
     ctx.clearRect(0, 0, W, H)
+    ctx.fillRect(0, 0, W, H)
+    ctx.drawImage(background,0,0,W,H)
     ecopoints.forEach((ecopoint) => {
         ecopoint.update()
     })
@@ -63,12 +83,17 @@ function verifyObjectHover(e, objects) {
 function correctPosition(prop, ecopoints) {
     ecopoints.forEach((ecopoint) => {
         if ((ecopoint.x < prop.x) && (ecopoint.y < prop.y) && (ecopoint.x + ecopoint.w > prop.x + prop.w) && (ecopoint.y + ecopoint.h > prop.y + prop.h))
-            if (ecopoint.type == prop.type)
+            if (ecopoint.type == prop.type){
                 props.pop()
+                successSound.currentTime = 0
+                successSound.play() 
+            }
             else {
                 ecopoint.shake = true
                 let shake = setInterval(() => { render() }, 40)
-                setTimeout(() => { clearTimeout(shake); ecopoint.shake = false }, 500)
+                missSound.currentTime = 0
+                missSound.play() 
+                setTimeout(() => { clearTimeout(shake); ecopoint.shake = false }, 300)
             }
     })
 }

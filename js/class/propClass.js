@@ -4,12 +4,10 @@ export default class Prop {
         this.h = h;
         this.w = w;
         this.img.src = img;
-        this.img.height = h;
-        this.img.width = w;
         this.type = type;
         this.name = name;
         this.x = Math.floor(Math.random() * (W - this.h));
-        this.y = Math.floor(Math.random() * (H - this.w));
+        this.y = Math.floor(Math.random() * ((H - this.w)-(H/2+50)) + (H/2+50));
         this.ctx = ctx
     }
     draw() {

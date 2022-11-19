@@ -15,23 +15,72 @@
 </head>
 
 <body>
-    <div class="menu nes-container is-rounded is-dark">
+    <!-- Menu -->
+    <div class="title-menu">
         <h1>ECOPLUS</h1>
+    </div>
+    <div class="menu nes-container is-rounded is-dark">
         <label>
             <input type="radio" class="nes-radio" name="answer" checked />
-            <span>Iniciar</span>
+            <span id="start">Iniciar</span>
         </label>
 
         <label>
             <input type="radio" class="nes-radio" name="answer" />
-            <span>Tutorial</span>
+            <span id="tutorial">Tutorial</span>
         </label>
 
         <label>
             <input type="radio" class="nes-radio" name="answer" />
-            <span>Option</span>
+            <span id="options">Opições</span>
         </label>
     </div>
+
+    <!-- USER NAME CREATION -->
+    <section>
+        <dialog class="nes-dialog is-dark is-rounded" id="userNameModal">
+            <form method="dialog">
+                <div class="nes-field">
+                    <label for="userName">Seu Nome</label>
+                    <input type="text" id="userName" class="nes-input" style="text-transform:uppercase">
+                </div>
+                <menu class="dialog-menu">
+                    <button class="nes-btn cancel">Cancelar</button>
+                    <button id="confirm" class="nes-btn is-primary">Confirmar</button>
+                </menu>
+            </form>
+        </dialog>
+    </section>
+
+    <!-- OPTIONS -->
+    <section>
+        <dialog class="nes-dialog is-dark is-rounded" id="optionModal">
+            <form method="dialog">
+                <div style="background-color:#212529; padding: 1rem 1.2rem 1rem 1rem;width:calc(100% + 8px)">
+                    <label for="volume" style="color:#fff">Volume</label>
+                    <div class="nes-select is-dark">
+                      <select required id="volume">
+                        <option value="" disabled selected hidden>Select...</option>
+                        <option value="1" selected>100%</option>
+                        <option value="0.8">80%</option>
+                        <option value="0.6">60%</option>
+                        <option value="0.4">40%</option>
+                        <option value="0.4">20%</option>
+                        <option value="0">0%</option>
+                      </select>
+                    </div>
+                  </div>
+                <menu class="dialog-menu">
+                    <button class="nes-btn cancel">Cancelar</button>
+                    <button id="confirmOptions" class="nes-btn is-primary">Confirmar</button>
+                </menu>
+            </form>
+        </dialog>
+    </section>
+    <canvas id="canvas" height="834" width="1444"></canvas>
 </body>
+
+<script type="module" src="../js/script.js">
+</script>
 
 </html>
