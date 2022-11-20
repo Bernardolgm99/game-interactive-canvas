@@ -1,3 +1,5 @@
+import Prop from '../class/propClass.js'
+
 const canvas = document.querySelector('#myCanvas');
 const ctx = canvas.getContext("2d");
 const W = canvas.width;
@@ -5,10 +7,12 @@ const H = canvas.height;
 
 //GLOBALS
 //add dash
-//points 
-//change bag for props bernardo
+//update backgrounds
+//trash img
+// player sprites
+//trow rock random rotation, rotating while trow?
 //last checks
-class Prop {
+class PropSpace {
     constructor(h, img, type, name, x, y) {
         this.h = h;
         this.w = h;
@@ -36,10 +40,10 @@ class Prop {
                     this.x += this.dx
                     this.y += this.dy 
                     this.dy += 0.05
-                    //rebounds canvas
-                    //direita
-                    if (this.x + this.w > W || this.x >= 0 || this.y + this.h > H){
-                    } else {this.dx = -2*this.dx/3}
+                    if (this.x + this.w < W || this.x < 0){
+                    } else {this.dx = -this.dx;}
+                    if (this.x + this.w > W || this.x > 0){
+                    } else {this.dx = -this.dx;}
                     this.colPlayer()
                     if(this.y >= finishPath || this.colisionPlayer) this.ground = true, colision = false;
                     if(this.colisionPlayer && this.ground) this.colisionPlayer = false;
@@ -53,11 +57,16 @@ class Prop {
             } else {this.colisionPlayer = true; break;}
         };
         if(this.colisionPlayer){
-            playerBag.push(this); 
+            playerBag.push(new Prop(this.h, this.w, this.img, this.type, this.name, H, W, ctx));
             this.removeTrash()//remove trash
         }
         //points
-        if(this.colisionPlayer && !this.ground){points += 50} else if(this.colisionPlayer && this.ground){points += 20}
+        if(this.colisionPlayer && !this.ground){
+            points += Math.round(yp-this.y)
+        } 
+        if(this.colisionPlayer && this.ground){
+            points += Math.round(-((yp-this.y)/3))
+        }
     }
     calculateTrag(dx, dy){
         this.dx = dx/4
@@ -73,18 +82,20 @@ class Prop {
 }
 //fazer ricochet nas paredes
 class Shot {
+    shotImg = new Image();
     constructor (h, img){
         this.h = h;
         this.w = h;
-        this.img = img;
+        this.shotImg.src = img;
+        this.shotImg.width = h
+        this.shotImg.height = h
         this.x = xp;
         this.y = yp;
     }
     update() {
         //SHHOT
         if (startShoot){
-            ctx.fillStyle = "blue"
-            ctx.fillRect(this.x, this.y, sizeRock, sizeRock)
+            ctx.drawImage(this.shotImg, this.x, this.y, this.w, this.h)
             this.x += this.dx
             this.y += this.dy 
             this.dy += 0.05
@@ -142,7 +153,6 @@ class Shot {
                 colision = true;
                 trash[i].calculateTrag(this.dx, this.dy)
                 trash[i].fall =true
-                indexColision = i
                 break
             }
         };
@@ -167,17 +177,17 @@ class Trees {
 }
 
 //player position and atributes
-let xp = 1500, yp = 800, w= 50, h= 70, pMovement = 1.3, playerBag = [], points = 0;
+let xp = 100, yp = 700, w= 50, h= 70, pMovement = 1.3, playerBag = [], points = 0;
 //keys
 let rightKey = false, leftKey = false, upKey = false, downKey = false, fleft = false, spaceKey = false, easterEgg = false;
 //shot
-let sizeRock = Math.floor(Math.random()* (15 - 10)+10), shot = new Shot(sizeRock, 'green');
+let sizeRock = Math.floor(Math.random()* (25 - 18)+18), shot = new Shot(sizeRock, '../../media/rock.png');
 //calculate Shots
 let angle, startShoot = false, dashAvailabe = false, scale;
 //trash
-let trash = [], trashSize = Math.floor(Math.random()*(40 - 30) + 30);
+let trash = [], trashSize = Math.floor(Math.random()*(40 - 30) + 30), bgGround =  new Image();
 //checkColisons
-let colision = false, indexColision, xrSpace, yrSpace;//colisionPlayer = false
+let colision = false, xrSpace, yrSpace;//colisionPlayer = false
 //arvores
 let trees = []
 
@@ -222,7 +232,7 @@ function trashRender(){
         for (let i = 0; i < nTimes; i++){
             let x = Math.random() * (tree.hwMax- trashSize)+ tree.hwMin // [MIN;MAX] = MIN + random*(MAX-ITEM)
             let y = Math.random() * (tree.hhMax- trashSize) + tree.hhMin
-            trash.push(new Prop(trashSize, 'black', 'metal', 'trash', x, y))
+            trash.push(new PropSpace(trashSize, 'black', 'metal', 'trash', x, y))
         }
     })
     
@@ -264,15 +274,23 @@ trashRender()
 function render() {
     //clear the Canvas
     ctx.clearRect(0, 0, W, H);
+    //ground
+    ctx.fillStyle = 'rgb(80,155,102)'
+    ctx.fillRect(0, 670, W, H)
     //points and trash number display
     ctx.font = "20px Georgia";
     ctx.fillText(`Points: ${points}`, 10, 30);
     ctx.font = "20px Georgia";
     ctx.fillText(`Trash Count: ${playerBag.length}`, 10, 60);
-    
+    //render trees
     trees.forEach((tree)=>{ tree.update() })
-    trash.forEach((prop) => { prop.update() })
+    //render shot
     shot.update()
+    //ground
+    bgGround.src = '../../media/groundSpace.png';
+    ctx.drawImage(bgGround, 0, 690)
+    //render trash
+    trash.forEach((prop) => { prop.update() })
     //player boundering;
     if (rightKey && xp + w < W) xp+=pMovement;
     if (leftKey && xp > 0) xp-=pMovement;
