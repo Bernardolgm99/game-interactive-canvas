@@ -7,7 +7,7 @@ let W = canvas.width
 let H = canvas.height
 
 //COORDINATES TO MOVE THE IMAGE
-let imgX = 475
+let imgX = 370
 let imgY = 0
 
 //IMPORTED IMAGES
@@ -22,13 +22,14 @@ let character_left_walk = new Image();
 let imgH
 let imgW
 
-//BALL INITIAL POSITION
-let characterX = 265
-let characterY = 210 
+//CHARACTER INITIAL POSITION
+let characterX = 690
+let characterY = 300 
+let speed = 4
 
 //DIMENSIONS
-let dimensionX = 250
-let dimensionY = 250
+let dimensionX = 500
+let dimensionY = 300
 
 //PIXEL VARIABLE CHECK
 /* let pixelArray = [] */
@@ -120,7 +121,7 @@ window.addEventListener('keydown', (event) => {
         case 37:
             
             ctx.clearRect(0, 0, W, H)
-            ctx.drawImage(hitbox_image, imgX, imgY, dimensionX, dimensionY, 0, 0, 500, 500)
+            ctx.drawImage(hitbox_image, imgX, imgY, dimensionX, dimensionY, 0, 0, W, H)
 
             //PIXEL COLOR CHECK
             pixel = ctx.getImageData(characterX-4, characterY, characterDimensions, characterDimensions) 
@@ -129,19 +130,24 @@ window.addEventListener('keydown', (event) => {
               if(!pixelCheck(pixel.data, 0, 0, 0)){
                 if(!pixelCheck(pixel.data, 0, 255, 0)){
                     if(!pixelCheck(pixel.data, 0, 0, 255)){
-                        if(characterX > 100){
-                            characterX -= 3
+                        if(characterX > H * 0.15){
+                            characterX -= speed
                             direction = character_left_walk
                             right = false
                             left = true
                         } else {
                             if(imgX > 0){
-                                imgX -= 3
+                                imgX -= speed/2
+                                direction = character_left_walk
+                                right = false
+                                left = true
+                            } else if(imgX <= 0 && characterX > 0 && characterX != 0){
+                                characterX -= speed
                                 direction = character_left_walk
                                 right = false
                                 left = true
                             }
-                        }
+                        } 
                     }
                 }
             } 
@@ -149,7 +155,7 @@ window.addEventListener('keydown', (event) => {
             break;
         case 38: 
             ctx.clearRect(0, 0, W, H)
-            ctx.drawImage(hitbox_image, imgX, imgY, dimensionX, dimensionY, 0, 0, 500, 500)
+            ctx.drawImage(hitbox_image, imgX, imgY, dimensionX, dimensionY, 0, 0, W, H)
 
             //PIXEL COLOR CHECK
             pixel = ctx.getImageData(characterX, characterY-7, characterDimensions, characterDimensions) 
@@ -158,8 +164,8 @@ window.addEventListener('keydown', (event) => {
             if(!pixelCheck(pixel.data, 0, 0, 0)){
                 if(!pixelCheck(pixel.data, 0, 255, 0)){
                     if(!pixelCheck(pixel.data, 0, 0, 255)){
-                        if(characterY > 100){
-                            characterY -= 3
+                        if(characterY > (W * 0.15)){
+                            characterY -= speed
                             if(right == true){
                                 direction = character_right_walk
                             } else {
@@ -167,7 +173,14 @@ window.addEventListener('keydown', (event) => {
                             }
                         } else {
                             if(imgY > 0){
-                                imgY -= 3
+                                imgY -= speed/2
+                                if(right == true){
+                                    direction = character_right_walk
+                                } else {
+                                    direction = character_left_walk
+                                }
+                            } else if(imgY <= 0 && characterY > 0 && characterY != 0){
+                                characterY -= speed
                                 if(right == true){
                                     direction = character_right_walk
                                 } else {
@@ -182,24 +195,31 @@ window.addEventListener('keydown', (event) => {
             break;
         case 39:
             ctx.clearRect(0, 0, W, H)
-            ctx.drawImage(hitbox_image, imgX, imgY, dimensionX, dimensionY, 0, 0, 500, 500)
+            ctx.drawImage(hitbox_image, imgX, imgY, dimensionX, dimensionY, 0, 0, W, H)
 
             //PIXEL COLOR CHECK
             pixel = ctx.getImageData(characterX+4, characterY, characterDimensions, characterDimensions) 
-            console.log(imgX, imgY)
-            console.log(characterX, characterY)
+
+            console.log(imgX + dimensionX )
+            console.log(imgW)
+            console.log(characterX)
             //PIXEL COLOR CHECK
             if(!pixelCheck(pixel.data, 0, 0, 0)){
                 if(!pixelCheck(pixel.data, 0, 255, 0)){
                     if(!pixelCheck(pixel.data, 0, 0, 255)){
-                        if(characterX < 400){
-                            characterX += 3
+                        if(characterX < (W - (W * 0.15))){
+                            characterX += speed
                             direction = character_right_walk
                             left = false
                             right = true
                         } else {
-                            if(imgX + dimensionY < imgW){
-                                imgX += 3
+                            if(imgX + dimensionX < imgW){
+                                imgX += speed/2
+                                direction = character_right_walk
+                                left = false
+                                right = true
+                            } else if(imgX + dimensionX >= imgW && characterX < W && characterX != W){
+                                characterX += speed
                                 direction = character_right_walk
                                 left = false
                                 right = true
@@ -212,25 +232,33 @@ window.addEventListener('keydown', (event) => {
         break;
         case 40:
                 ctx.clearRect(0, 0, W, H)
-                ctx.drawImage(hitbox_image, imgX, imgY, dimensionX, dimensionY, 0, 0, 500, 500)
+                ctx.drawImage(hitbox_image, imgX, imgY, dimensionX, dimensionY, 0, 0, W, H)
 
                 //PIXEL COLOR CHECK
                 pixel = ctx.getImageData(characterX, characterY+7, characterDimensions, characterDimensions) 
 
+                console.log(!pixelCheck(pixel.data, 0, 0, 0))
                 //PIXEL COLOR CHECK
                 if(!pixelCheck(pixel.data, 0, 0, 0)){
                     if(!pixelCheck(pixel.data, 0, 255, 0)){
                         if(!pixelCheck(pixel.data, 0, 0, 255)){
-                            if(characterY < 400){
-                                characterY += 3
+                            if(characterY < (H - (H * 0.15))){
+                                characterY += speed
                                 if(right == true){
                                     direction = character_right_walk
                                 } else {
                                     direction = character_left_walk
                                 }
                             } else {
-                                if(imgY + dimensionX < imgH){
-                                    imgY += 3
+                                if(imgY + dimensionY < imgH){
+                                    imgY += speed/2
+                                    if(right == true){
+                                        direction = character_right_walk
+                                    } else {
+                                        direction = character_left_walk
+                                    }
+                                } else if(imgY + dimensionY >= imgH && characterY + characterDimensions < H && characterY != imgH){
+                                    characterY += speed
                                     if(right == true){
                                         direction = character_right_walk
                                     } else {
@@ -245,7 +273,7 @@ window.addEventListener('keydown', (event) => {
         break;
         case 90: //'z' press
             
-            ctx.drawImage(hitbox_image, imgX, imgY, dimensionX, dimensionY, 0, 0, 500, 500)
+            ctx.drawImage(hitbox_image, imgX, imgY, dimensionX, dimensionY, 0, 0, W, H)
 
             //PIXEL COLOR CHECK
         
