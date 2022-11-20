@@ -7,7 +7,7 @@ let W = canvas.width
 let H = canvas.height
 
 //COORDINATES TO MOVE THE IMAGE
-let imgX = 0
+let imgX = 475
 let imgY = 0
 
 //IMPORTED IMAGES
@@ -23,8 +23,8 @@ let imgH
 let imgW
 
 //BALL INITIAL POSITION
-let ballX = 148
-let ballY = 148 
+let characterX = 265
+let characterY = 210 
 
 //DIMENSIONS
 let dimensionX = 250
@@ -44,6 +44,9 @@ let right = true
 let left = false
 let characterDimensions = 40
 
+//LOCALSTORAGE INJECTION
+let bag
+
 
 //WHOLE MAP INIT
 base()
@@ -62,7 +65,14 @@ function base(){
         imgH = base_image.height   
         //console.log(imgW, imgH); 
         // ctx.drawImage(base_image, imgX, imgY, dimensionX, dimensionY, 0, 0, 500, 500);
- }
+    }
+    if(!localStorage.bag){
+        bag = []
+        localStorage.setItem('bag', JSON.stringify(bag))
+        console.log('bag data injected')
+    } else {
+        bag = JSON.parse(localStorage.getItem('bag'))
+    }
 }
 
 
@@ -75,10 +85,10 @@ function render() {
     ctx.clearRect(0, 0, W, H)
     //base_image.src = `img/map.png`;
     //console.log(imgX, imgY)
-    ctx.drawImage(base_image,  imgX, imgY, dimensionX, dimensionY, 0, 0, 500, 500);
+    ctx.drawImage(base_image,  imgX, imgY, dimensionX, dimensionY, 0, 0, W, H);
 
     //SPRITE
-    ctx.drawImage(direction, frameIndex * 90/6, 0, 14, 23, ballX, ballY, characterDimensions, characterDimensions)
+    ctx.drawImage(direction, frameIndex * 90/6, 0, 14, 23, characterX, characterY, characterDimensions, characterDimensions)
     animationFrameCount++
 
     if(animationFrameCount % 6 == 0) {
@@ -90,7 +100,7 @@ function render() {
     }
 
     //CUBE TEST
-    /* ctx.fillRect(ballX, ballY, ballWH, ballWH) */
+    /* ctx.fillRect(characterX, characterY, ballWH, ballWH) */
 
     //TEST SQUARE
 /*     ctx.beginPath()
@@ -113,23 +123,24 @@ window.addEventListener('keydown', (event) => {
             ctx.drawImage(hitbox_image, imgX, imgY, dimensionX, dimensionY, 0, 0, 500, 500)
 
             //PIXEL COLOR CHECK
-            pixel = ctx.getImageData(ballX-4, ballY, characterDimensions, characterDimensions) 
-
+            pixel = ctx.getImageData(characterX-4, characterY, characterDimensions, characterDimensions) 
 
             //PIXEL COLOR CHECK
               if(!pixelCheck(pixel.data, 0, 0, 0)){
                 if(!pixelCheck(pixel.data, 0, 255, 0)){
-                    if(ballX > 100){
-                        ballX -= 3
-                        direction = character_left_walk
-                        right = false
-                        left = true
-                    } else {
-                        if(imgX > 0){
-                            imgX -= 3
+                    if(!pixelCheck(pixel.data, 0, 0, 255)){
+                        if(characterX > 100){
+                            characterX -= 3
                             direction = character_left_walk
                             right = false
                             left = true
+                        } else {
+                            if(imgX > 0){
+                                imgX -= 3
+                                direction = character_left_walk
+                                right = false
+                                left = true
+                            }
                         }
                     }
                 }
@@ -141,27 +152,29 @@ window.addEventListener('keydown', (event) => {
             ctx.drawImage(hitbox_image, imgX, imgY, dimensionX, dimensionY, 0, 0, 500, 500)
 
             //PIXEL COLOR CHECK
-            pixel = ctx.getImageData(ballX, ballY-7, characterDimensions, characterDimensions) 
+            pixel = ctx.getImageData(characterX, characterY-7, characterDimensions, characterDimensions) 
 
             //PIXEL COLOR CHECK
             if(!pixelCheck(pixel.data, 0, 0, 0)){
                 if(!pixelCheck(pixel.data, 0, 255, 0)){
-                    if(ballY > 100){
-                        ballY -= 3
-                        if(right == true){
-                            direction = character_right_walk
-                        } else {
-                            direction = character_left_walk
-                        }
-                    } else {
-                        if(imgY > 0){
-                            imgY -= 3
+                    if(!pixelCheck(pixel.data, 0, 0, 255)){
+                        if(characterY > 100){
+                            characterY -= 3
                             if(right == true){
                                 direction = character_right_walk
                             } else {
                                 direction = character_left_walk
                             }
-                        }
+                        } else {
+                            if(imgY > 0){
+                                imgY -= 3
+                                if(right == true){
+                                    direction = character_right_walk
+                                } else {
+                                    direction = character_left_walk
+                                }
+                            }
+                    }
                     }
                 }
             }
@@ -172,22 +185,25 @@ window.addEventListener('keydown', (event) => {
             ctx.drawImage(hitbox_image, imgX, imgY, dimensionX, dimensionY, 0, 0, 500, 500)
 
             //PIXEL COLOR CHECK
-            pixel = ctx.getImageData(ballX+4, ballY, characterDimensions, characterDimensions) 
-            
+            pixel = ctx.getImageData(characterX+4, characterY, characterDimensions, characterDimensions) 
+            console.log(imgX, imgY)
+            console.log(characterX, characterY)
             //PIXEL COLOR CHECK
             if(!pixelCheck(pixel.data, 0, 0, 0)){
                 if(!pixelCheck(pixel.data, 0, 255, 0)){
-                    if(ballX < 400){
-                        ballX += 3
-                        direction = character_right_walk
-                        left = false
-                        right = true
-                    } else {
-                        if(imgX + dimensionY < imgW){
-                            imgX += 3
+                    if(!pixelCheck(pixel.data, 0, 0, 255)){
+                        if(characterX < 400){
+                            characterX += 3
                             direction = character_right_walk
                             left = false
                             right = true
+                        } else {
+                            if(imgX + dimensionY < imgW){
+                                imgX += 3
+                                direction = character_right_walk
+                                left = false
+                                right = true
+                            }
                         }
                     }
                 }
@@ -199,25 +215,27 @@ window.addEventListener('keydown', (event) => {
                 ctx.drawImage(hitbox_image, imgX, imgY, dimensionX, dimensionY, 0, 0, 500, 500)
 
                 //PIXEL COLOR CHECK
-                pixel = ctx.getImageData(ballX, ballY+7, characterDimensions, characterDimensions) 
+                pixel = ctx.getImageData(characterX, characterY+7, characterDimensions, characterDimensions) 
 
                 //PIXEL COLOR CHECK
                 if(!pixelCheck(pixel.data, 0, 0, 0)){
                     if(!pixelCheck(pixel.data, 0, 255, 0)){
-                        if(ballY < 400){
-                            ballY += 3
-                            if(right == true){
-                                direction = character_right_walk
-                            } else {
-                                direction = character_left_walk
-                            }
-                        } else {
-                            if(imgY + dimensionX < imgH){
-                                imgY += 3
+                        if(!pixelCheck(pixel.data, 0, 0, 255)){
+                            if(characterY < 400){
+                                characterY += 3
                                 if(right == true){
                                     direction = character_right_walk
                                 } else {
                                     direction = character_left_walk
+                                }
+                            } else {
+                                if(imgY + dimensionX < imgH){
+                                    imgY += 3
+                                    if(right == true){
+                                        direction = character_right_walk
+                                    } else {
+                                        direction = character_left_walk
+                                    }
                                 }
                             }
                         }
@@ -231,28 +249,52 @@ window.addEventListener('keydown', (event) => {
 
             //PIXEL COLOR CHECK
         
-            pixel = ctx.getImageData(ballX, ballY+25, 25, 25)
+            pixel = ctx.getImageData(characterX, characterY+25, 25, 25)
             if(pixelCheck(pixel.data, 0, 255, 0)){
                 console.log('SOU VERDE')
                 break
+            } else if(pixelCheck(pixel.data, 0, 0, 255)){
+                if(bag.length == 0){
+                    alert('BAG IS EMPTY')
+                    break
+                }
+                break
             }
 
-            pixel = ctx.getImageData(ballX+40, ballY, 25, 25)
+            pixel = ctx.getImageData(characterX+40, characterY, 25, 25)
             if(pixelCheck(pixel.data, 0, 255, 0)){
                 console.log('SOU VERDE')
+                break
+            } else if(pixelCheck(pixel.data, 0, 0, 255)){
+                if(bag.length == 0){
+                    alert('BAG IS EMPTY')
+                    break
+                }
                 break
             }
 
 
-            pixel = ctx.getImageData(ballX, ballY-20, 25, 25)
+            pixel = ctx.getImageData(characterX, characterY-20, 25, 25)
             if(pixelCheck(pixel.data, 0, 255, 0)){
                 console.log('SOU VERDE')
                 break
+            } else if(pixelCheck(pixel.data, 0, 0, 255)){
+                if(bag.length == 0){
+                    alert('BAG IS EMPTY')
+                    break
+                }
+                break
             }
 
-            pixel = ctx.getImageData(ballX-40, ballY, 25, 25)
+            pixel = ctx.getImageData(characterX-40, characterY, 25, 25)
             if(pixelCheck(pixel.data, 0, 255, 0)){
                 console.log('SOU VERDE')
+                break
+            } else if(pixelCheck(pixel.data, 0, 0, 255)){
+                if(bag.length == 0){
+                    alert('BAG IS EMPTY')
+                    break
+                }
                 break
             }                            
         
@@ -283,23 +325,33 @@ window.addEventListener('keyup', () => {
     console.log(b)*/
     let dataFilter = dataArray.filter(data => data[0] == r && data[1] == g && data[2] == b)
  /*    console.log(dataFilter) */
+    //BLACK COLOR
     if(r == 0 && g == 0 && b == 0){
         if(dataFilter.length >= 15){
             return true
         } else {
             return false
         }
+    //WHITE COLOR
     } else if( r == 255 && g == 255 && b == 255) {
         if(dataFilter.length >= 15){
             return true
         } else {
             return false
         }
+    //GREEN COLOR
     } else if(r == 0 && g == 255 && b == 0){
         if(dataFilter.length >= 15){
             return true
         } else {
             return false 
         }
+    //BLUE COLOR
+    } else if(r == 0 && g == 0 && b == 255){
+        if(dataFilter.length >= 15){
+            return true
+        } else {
+            return false 
+        }   
     }
 } 
