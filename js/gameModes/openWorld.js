@@ -48,6 +48,13 @@ let characterDimensions = 40
 //LOCALSTORAGE INJECTION
 let bag
 
+//MAP SQUARES
+let xPosition = 265
+let yPosition = 550
+let wSquare = 100
+let hSquare = 70
+265, 550 , 100, 70
+let props = [{xPosition: 265, yPosition: 550, }]
 
 //WHOLE MAP INIT
 base()
@@ -100,12 +107,14 @@ function render() {
         }
     }
 
+
+
     //CUBE TEST
     /* ctx.fillRect(characterX, characterY, ballWH, ballWH) */
 
     //TEST SQUARE
-/*     ctx.beginPath()
-    ctx.fillRect(130, 130 , 45, 45) */
+    ctx.beginPath()
+    ctx.fillRect(xPosition, yPosition , wSquare, hSquare)
     
     requestAnimationFrame(render);
 }
@@ -127,21 +136,21 @@ window.addEventListener('keydown', (event) => {
             pixel = ctx.getImageData(characterX-4, characterY, characterDimensions, characterDimensions) 
 
             //PIXEL COLOR CHECK
-              if(!pixelCheck(pixel.data, 0, 0, 0)){
-                if(!pixelCheck(pixel.data, 0, 255, 0)){
-                    if(!pixelCheck(pixel.data, 0, 0, 255)){
-                        if(characterX > H * 0.15){
+              if(!pixelCheck(pixel.data, 0, 0, 0)){ //CHECK IF THE COLOR PIXEL COLOR IS BLACK
+                if(!pixelCheck(pixel.data, 0, 255, 0)){ //CHECK IF THE COLOR PIXEL COLOR IS GREEN
+                    if(!pixelCheck(pixel.data, 0, 0, 255)){ //CHECK IF THE COLOR PIXEL COLOR IS BLUE
+                        if(characterX > H * 0.15){ //MAKES THE CHARACTER MOVE
                             characterX -= speed
                             direction = character_left_walk
                             right = false
                             left = true
                         } else {
-                            if(imgX > 0){
+                            if(imgX > 0){ //MOVE MAP
                                 imgX -= speed/2
                                 direction = character_left_walk
                                 right = false
                                 left = true
-                            } else if(imgX <= 0 && characterX > 0 && characterX != 0){
+                            } else if(imgX <= 0 && characterX > 0 && characterX != 0){ //THE CHARACTER MOVES ALONE ON THE EDGE
                                 characterX -= speed
                                 direction = character_left_walk
                                 right = false
@@ -161,10 +170,10 @@ window.addEventListener('keydown', (event) => {
             pixel = ctx.getImageData(characterX, characterY-7, characterDimensions, characterDimensions) 
 
             //PIXEL COLOR CHECK
-            if(!pixelCheck(pixel.data, 0, 0, 0)){
-                if(!pixelCheck(pixel.data, 0, 255, 0)){
-                    if(!pixelCheck(pixel.data, 0, 0, 255)){
-                        if(characterY > (W * 0.15)){
+            if(!pixelCheck(pixel.data, 0, 0, 0)){ //CHECK IF THE COLOR PIXEL COLOR IS BLACK
+                if(!pixelCheck(pixel.data, 0, 255, 0)){ //CHECK IF THE COLOR PIXEL COLOR IS GREEN
+                    if(!pixelCheck(pixel.data, 0, 0, 255)){ //CHECK IF THE COLOR PIXEL COLOR IS BLUE
+                        if(characterY > (W * 0.15)){ //MAKES THE CHARACTER MOVE
                             characterY -= speed
                             if(right == true){
                                 direction = character_right_walk
@@ -172,14 +181,14 @@ window.addEventListener('keydown', (event) => {
                                 direction = character_left_walk
                             }
                         } else {
-                            if(imgY > 0){
+                            if(imgY > 0){ //MOVE MAP
                                 imgY -= speed/2
                                 if(right == true){
                                     direction = character_right_walk
                                 } else {
                                     direction = character_left_walk
                                 }
-                            } else if(imgY <= 0 && characterY > 0 && characterY != 0){
+                            } else if(imgY <= 0 && characterY > 0 && characterY != 0){ //THE CHARACTER MOVES ALONE ON THE EDGE
                                 characterY -= speed
                                 if(right == true){
                                     direction = character_right_walk
@@ -200,25 +209,22 @@ window.addEventListener('keydown', (event) => {
             //PIXEL COLOR CHECK
             pixel = ctx.getImageData(characterX+4, characterY, characterDimensions, characterDimensions) 
 
-            console.log(imgX + dimensionX )
-            console.log(imgW)
-            console.log(characterX)
             //PIXEL COLOR CHECK
-            if(!pixelCheck(pixel.data, 0, 0, 0)){
-                if(!pixelCheck(pixel.data, 0, 255, 0)){
-                    if(!pixelCheck(pixel.data, 0, 0, 255)){
-                        if(characterX < (W - (W * 0.15))){
+            if(!pixelCheck(pixel.data, 0, 0, 0)){ //CHECK IF THE COLOR PIXEL COLOR IS BLACK
+                if(!pixelCheck(pixel.data, 0, 255, 0)){ //CHECK IF THE COLOR PIXEL COLOR IS GREEN
+                    if(!pixelCheck(pixel.data, 0, 0, 255)){ //CHECK IF THE COLOR PIXEL COLOR IS BLUE
+                        if(characterX < (W - (W * 0.15))){ //MAKES THE CHARACTER MOVE
                             characterX += speed
                             direction = character_right_walk
                             left = false
                             right = true
                         } else {
-                            if(imgX + dimensionX < imgW){
+                            if(imgX + dimensionX < imgW){ //MOVE MAP
                                 imgX += speed/2
                                 direction = character_right_walk
                                 left = false
                                 right = true
-                            } else if(imgX + dimensionX >= imgW && characterX < W && characterX != W){
+                            } else if(imgX + dimensionX >= imgW && characterX < W && characterX != W){ //THE CHARACTER MOVES ALONE ON THE EDGE
                                 characterX += speed
                                 direction = character_right_walk
                                 left = false
@@ -237,27 +243,27 @@ window.addEventListener('keydown', (event) => {
                 //PIXEL COLOR CHECK
                 pixel = ctx.getImageData(characterX, characterY+7, characterDimensions, characterDimensions) 
 
-                console.log(!pixelCheck(pixel.data, 0, 0, 0))
                 //PIXEL COLOR CHECK
-                if(!pixelCheck(pixel.data, 0, 0, 0)){
-                    if(!pixelCheck(pixel.data, 0, 255, 0)){
-                        if(!pixelCheck(pixel.data, 0, 0, 255)){
-                            if(characterY < (H - (H * 0.15))){
+                if(!pixelCheck(pixel.data, 0, 0, 0)){ //CHECK IF THE COLOR PIXEL COLOR IS BLACK
+                    if(!pixelCheck(pixel.data, 0, 255, 0)){ //CHECK IF THE COLOR PIXEL COLOR IS GREEN
+                        if(!pixelCheck(pixel.data, 0, 0, 255)){ //CHECK IF THE COLOR PIXEL COLOR IS BLUE
+                            if(characterY < (H - (H * 0.15))){ //MAKES THE CHARACTER MOVE
                                 characterY += speed
-                                if(right == true){
+                                if(right == true){ 
                                     direction = character_right_walk
                                 } else {
                                     direction = character_left_walk
                                 }
                             } else {
-                                if(imgY + dimensionY < imgH){
+                                if(imgY + dimensionY < imgH){ //MOVE MAP
                                     imgY += speed/2
+                                    yPosition -= speed*1.25
                                     if(right == true){
                                         direction = character_right_walk
                                     } else {
                                         direction = character_left_walk
                                     }
-                                } else if(imgY + dimensionY >= imgH && characterY + characterDimensions < H && characterY != imgH){
+                                } else if(imgY + dimensionY >= imgH && characterY + characterDimensions < H && characterY != imgH){ //THE CHARACTER MOVES ALONE ON THE EDGE
                                     characterY += speed
                                     if(right == true){
                                         direction = character_right_walk
@@ -272,11 +278,12 @@ window.addEventListener('keydown', (event) => {
             //console.log('down')
         break;
         case 90: //'z' press
-            
+
+            //THE HITBOX WILL CHECK EVERY COLOR AROUND THE CHARACTER AND IF IT FINDS THE CORRESPONDING COLOR, IT INTERACTS WITH THE COLOR
+
             ctx.drawImage(hitbox_image, imgX, imgY, dimensionX, dimensionY, 0, 0, W, H)
 
             //PIXEL COLOR CHECK
-        
             pixel = ctx.getImageData(characterX, characterY+25, 25, 25)
             if(pixelCheck(pixel.data, 0, 255, 0)){
                 console.log('SOU VERDE')
@@ -300,7 +307,6 @@ window.addEventListener('keydown', (event) => {
                 }
                 break
             }
-
 
             pixel = ctx.getImageData(characterX, characterY-20, 25, 25)
             if(pixelCheck(pixel.data, 0, 255, 0)){
@@ -333,7 +339,7 @@ window.addEventListener('keydown', (event) => {
 })
 
 window.addEventListener('keyup', () => {
-    if(right == true) {
+    if(right == true) { //CHARACTER DIRECTION
         direction = character_right
     } else {
         direction = character_left
@@ -383,3 +389,11 @@ window.addEventListener('keyup', () => {
         }   
     }
 } 
+
+//REPLACE VALUES TO DRAW SQUARES
+function squareValue(x, y, w, h){
+    xPosition = x
+    yPosition = y
+    wSquare = w
+    hSquare = h
+}
