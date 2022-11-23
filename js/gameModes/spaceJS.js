@@ -9,8 +9,7 @@ const H = canvas.height;
 //add dash
 //update backgrounds
 //trash img
-// player sprites
-//trow rock random rotation, rotating while trow?
+//player sprites
 //last checks
 class PropSpace {
     constructor(h, img, type, name, x, y) {
@@ -62,10 +61,10 @@ class PropSpace {
         }
         //points
         if(this.colisionPlayer && !this.ground){
-            points += Math.round(yp-this.y)
+            points += Math.round(yp-this.y)*5
         } 
         if(this.colisionPlayer && this.ground){
-            points += Math.round(-((yp-this.y)/3))
+            points += Math.round(-((yp-this.y)/3))*5
         }
     }
     calculateTrag(dx, dy){
@@ -91,13 +90,20 @@ class Shot {
         this.shotImg.height = h
         this.x = xp;
         this.y = yp;
+        this.rotation = 0;
     }
     update() {
         //SHHOT
         if (startShoot){
-            ctx.drawImage(this.shotImg, this.x, this.y, this.w, this.h)
+            //change rotation
+            this.rotation += 0.05
+            ctx.save()
+            ctx.translate(this.x+this.w/2, this.y+this.h/2)
+            ctx.rotate(this.rotation)
+            ctx.drawImage(this.shotImg, -this.w/2, -this.h/2, this.w, this.h)
+            ctx.restore()
             this.x += this.dx
-            this.y += this.dy 
+            this.y += this.dy
             this.dy += 0.05
             shot.checkColison()
             //add colisions walls canvas
@@ -108,7 +114,7 @@ class Shot {
             if (this.y >= yp + 50 || colision){
                 startShoot = false;
                 dashAvailabe = false; 
-                sizeRock = Math.floor(Math.random()* (18 - 10)+10)           
+                sizeRock = Math.floor(Math.random()* (25 - 15)+15)           
             }
         }
     }
@@ -181,11 +187,11 @@ let xp = 100, yp = 700, w= 50, h= 70, pMovement = 1.3, playerBag = [], points = 
 //keys
 let rightKey = false, leftKey = false, upKey = false, downKey = false, fleft = false, spaceKey = false, easterEgg = false;
 //shot
-let sizeRock = Math.floor(Math.random()* (25 - 18)+18), shot = new Shot(sizeRock, '../../media/rock.png');
+let sizeRock = Math.floor(Math.random()* (25 - 15)+15), shot = new Shot(sizeRock, '../../media/rock.png');
 //calculate Shots
 let angle, startShoot = false, dashAvailabe = false, scale;
 //trash
-let trash = [], trashSize = Math.floor(Math.random()*(40 - 30) + 30), bgGround =  new Image();
+let trash = [], trashSize, bgGround =  new Image(), numTrash = 10;
 //checkColisons
 let colision = false, xrSpace, yrSpace;//colisionPlayer = false
 //arvores
@@ -217,6 +223,7 @@ window.addEventListener('keyup', e => {
 //canvas EVENTS
 canvas.addEventListener('click', e => {
     let xr = e.offsetX; let yr = e.offsetY;
+    console.log(xr, yr, xp, yp)
     shot.shotsCalculator(xr, yr)
 }) 
 canvas.addEventListener('mousemove', e => {
@@ -228,23 +235,31 @@ function trashRender(){
     //escolher arvore
     trees.forEach((tree) => {
         //criar lixo na arvore, x vezes
-        let nTimes = Math.floor(Math.random()*(6 - 2)+ 2)
-        for (let i = 0; i < nTimes; i++){
-            let x = Math.random() * (tree.hwMax- trashSize)+ tree.hwMin // [MIN;MAX] = MIN + random*(MAX-ITEM)
-            let y = Math.random() * (tree.hhMax- trashSize) + tree.hhMin
-            trash.push(new PropSpace(trashSize, 'black', 'metal', 'trash', x, y))
+        let nTimes = Math.floor(Math.random()*(4 - 2)+ 2)
+        if(trash.length <= numTrash) {
+            for (let i = 0; i < nTimes; i++){
+                trashSize = Math.floor(Math.random()*(45 - 35) + 35)
+                let x = Math.random() * (tree.hwMax- trashSize)+ tree.hwMin // [MIN;MAX] = MIN + random*(MAX-ITEM)
+                let y = Math.random() * (tree.hhMax- trashSize) + tree.hhMin
+                //check trash colision
+                trash.forEach(garbage => {
+                    if (x + trashSize < garbage.x || x > garbage.x + garbage.w || y + trashSize < garbage.y || y > garbage.y + garbage.h){
+                    } else {
+                        x = Math.random() * (tree.hwMax- trashSize)+ tree.hwMin
+                        y = Math.random() * (tree.hhMax- trashSize) + tree.hhMin
+                    }
+                })
+                trash.push(new PropSpace(trashSize, 'black', 'metal', 'trash', x, y))
+            }
         }
     })
     
 }
 function checkGround(){
-   /*  console.log(trash, playerBag); */
     trash.forEach(garbage => {
         garbage.colPlayer()
     })
-        
-/*     console.log(playerBag)
- */}
+}
 function treesRender(){
     let tree ={}
     let nTimes = Math.floor(Math.random()*(6 - 3)+ 3) //HOW MANY TIMES
@@ -284,11 +299,11 @@ function render() {
     ctx.fillText(`Trash Count: ${playerBag.length}`, 10, 60);
     //render trees
     trees.forEach((tree)=>{ tree.update() })
-    //render shot
-    shot.update()
     //ground
     bgGround.src = '../../media/groundSpace.png';
     ctx.drawImage(bgGround, 0, 690)
+    //render shot
+    shot.update()
     //render trash
     trash.forEach((prop) => { prop.update() })
     //player boundering;
