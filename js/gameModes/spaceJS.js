@@ -8,7 +8,8 @@ const H = canvas.height;
 //GLOBALS
 //add dash
 //clouds moving
-//trash img
+//trash img update
+//rotate trash
 //animation bugged trowing
 class PropSpace {
     tImg = new Image()
@@ -110,6 +111,7 @@ class Shot {
             } else {this.dx = -this.dx;}
             if (this.y >= yp + 50 || colision){
                 startShoot = false;
+                shoted = false;
                 dashAvailabe = false; 
                 sizeRock = Math.floor(Math.random()* (25 - 15)+15)           
             }
@@ -178,7 +180,38 @@ class Trees {
         ctx.drawImage(this.img, this.x, this.y, this.w, this.h)
     }
 }
-
+//clouds
+class C9 {
+    constructor(velocity, color, x, y, w, h){
+        this.velocity= velocity;
+        this.color = color;
+        this.x = x;
+        this.y = y;
+        this.h = h;
+        this.w = w;
+    }
+    update(){
+        this.x += this.velocity
+        if(this.x > W){
+            this.x = -this.w
+        }
+        ctx.fillStyle= this.color
+        ctx.fillRect(this.x, this.y, this.w, this.h)
+    }
+}
+//clouds
+let clouds = []
+clouds.push(new C9(0.04, "#EBEBEB", 150, 45, 350, 50),
+            new C9(0.04, "white", 2, 2, 350, 50),
+            new C9(0.02, "#EBEBEB", 45, 140, 120, 30),
+            new C9(0.02, "white", 2, 132, 120, 30),
+            new C9(0.08, "#EBEBEB", 750, 10, 160, 30),
+            new C9(0.08, "white", 800, 0, 180, 20),
+            new C9(0.05, "#EBEBEB", 1350, 0, 400, 55),
+            new C9(0.05, "white", 1100, 0, 400, 30),
+            new C9(0.05, "white", 1750, 100, 400, 35),
+            new C9(0.1, "#EBEBEB", 1150, 100, 150, 35),
+            new C9(0.1, "white", 1200, 80, 150, 35))
 //player position and atributes
 let xp = 100, yp = 700, w= 77, h= 80, pMovement = 1.3, playerBag = [], points = 0; 
 let idleLeft = new Image(),idleRight = new Image(),walkRight = new Image(),walkLeft = new Image(),trowLeft = new Image(),trowRight = new Image(),bg = new Image();
@@ -189,7 +222,7 @@ walkLeft.src = '../media/animation_player/walk_left2.png'; walkLeft.width = w; w
 trowLeft.src = '../media/animation_player/trow_left1.png'; trowLeft.width = w; trowLeft.height = h;
 trowRight.src = '../media/animation_player/trow_right1.png'; trowRight.width = w; trowRight.height = h;
 idleLeft.src = '../media/animation_player/static_left2.png'; idleLeft.width = w; idleLeft.height = h;
-let frameIndex = 0
+let frameIndex = 0,frameIndexTrow = 0;
 //keys
 let rightKey = false, leftKey = false, upKey = false, downKey = false, fleft = false, spaceKey = false, easterEgg = false;
 //shot
@@ -199,7 +232,8 @@ let colision = false, xrSpace, yrSpace;
 //calculate Shots
 let angle, startShoot = false, dashAvailabe = false, scale;
 //trash
-let trash = [], trashSize, bgGround =  new Image(), numTrash = 10, trashSrc = ['../media/props/glassWineFull.png', '../media/props/matalCanSoda.png', '../media/props/plasticBleach.png', '../media/props/plasticPop4.png'];
+let trash = [], trashSize, bgGround =  new Image(), numTrash = 10, type, cat;
+let trashSrc = ['../media/props/glassWineFull.png', '../media/props/metalCanSoda.png', '../media/props/plasticBleach.png', '../media/props/plasticPop4.png'];
 //arvores
 let trees = [] 
 
@@ -229,8 +263,12 @@ window.addEventListener('keyup', e => {
 //canvas EVENTS
 canvas.addEventListener('click', e => {
     let xr = e.offsetX; let yr = e.offsetY;
-    shot.shotsCalculator(xr, yr)
-    shoted = true;
+    
+    if (!startShoot)
+    {
+        shot.shotsCalculator(xr, yr)
+        shoted = true;
+    }
 })
 
 //function
@@ -252,7 +290,22 @@ function trashRender(){
                         y = Math.random() * (tree.hhMax- trashSize) + tree.hhMin
                     }
                 })
-                trash.push(new PropSpace(trashSize, trashSrc[0], 'metal', 'trash', x, y))
+                let random = Math.round(Math.random() * 3)
+                switch (random) {
+                    case 0:
+                        type = 'glass'
+                        cat = 'bottle'
+                    case 1:
+                        type = 'metal'
+                        cat = 'soda'
+                    case 2:
+                        type = 'plastic'
+                        cat = 'bottle'
+                    case 3:
+                        type = 'plastic'
+                        cat = 'bottle'
+                }
+                trash.push(new PropSpace(trashSize, trashSrc[random], type, cat, x, y))
             }
         }
     })
@@ -295,6 +348,8 @@ function render() {
     //bg
     bg.src = '../media/bgSpace.png';
     ctx.drawImage(bg, 0, 0)
+    //clouds
+    clouds.forEach((cloud) => {cloud.update()})
     //ground
     ctx.fillStyle = 'rgb(80,155,102)'
     ctx.fillRect(0, 670, W, H)
@@ -373,23 +428,26 @@ function render() {
             if(currentFrame >= 120) currentFrame = 0;
         }
     }
+
+    
     if(shoted && startShoot){
         //trow
         if(fleft){
-            ctx.drawImage(trowLeft, frameIndex * 30, 0, 30, 40, xp, yp, w, h);
-            if(currentFrame%15 == 0)  frameIndex++;
-            if (frameIndex == 4) frameIndex = 0, shoted = false; //reset the number of frames counter
+            ctx.drawImage(trowLeft, frameIndexTrow * 30, 0, 30, 40, xp, yp, w, h);
+            if(currentFrame%15 == 0)  frameIndexTrow++;
+            if (frameIndexTrow == 4) frameIndexTrow = 0, shoted = false; //reset the number of frames counter
             if(currentFrame >= 120) currentFrame = 0;
         } else {
-            ctx.drawImage(trowRight, frameIndex * 30, 0, 30, 40, xp, yp, w, h);
-            if(currentFrame%15 == 0)  frameIndex++;
-            if (frameIndex == 4) frameIndex = 0, shoted = false; //reset the number of frames counter
+            ctx.drawImage(trowRight, frameIndexTrow * 30, 0, 30, 40, xp, yp, w, h);
+            if(currentFrame%15 == 0)  frameIndexTrow++;
+            if (frameIndexTrow == 4) frameIndexTrow = 0, shoted = false; //reset the number of frames counter
             if(currentFrame >= 120) currentFrame = 0;
         }
         
     }
     currentFrame++
 }
+
 idleLeft.onload = function () {
     setInterval(render, 1000/120)
 };
