@@ -16,30 +16,34 @@ let ecopoints = [];
 let props = []; // props array of objects
 let propMoving = {};
 let background = new Image()
+let playerDragInDrop = {}
 background.src = "../media/bg/trashBackGround.png";
 background.width = W;
 background.height = H;
+
+
+
 //GAME PLAY
-export default function dragAndDropGame() {
+export default function dragAndDropGame(player) {
     //CONFIG DEFINITIONS
     console.log(localStorage.getItem('volume'));
     missSound.volume = +localStorage.getItem("volume")
     successSound.volume = 0.25 * +localStorage.getItem("volume")
 
-    let player = JSON.parse(localStorage.getItem('player'))
+    playerDragInDrop = player
     
     //TEST OBJECTS
     
-    // props = player.h
+    /* props = player.h */
     ecopoints.push(new EcoPoint(100+100, 270, 150, 180, `..\\media\\props\\trashBinYellow.png`, 'metal', 'metalEcoPoint', ctx))
     ecopoints.push(new EcoPoint(100+400, 270, 150, 180, `..\\media\\props\\trashBinBlue.png`, 'paper', 'paperEcoPoint', ctx))
     ecopoints.push(new EcoPoint(100+700, 270, 150, 180, `..\\media\\props\\trashBinGreen.png`, 'glass', 'glassEcoPoint', ctx))
     ecopoints.push(new EcoPoint(100+1000, 270, 150, 180, `..\\media\\props\\trashBin.png`, 'others', 'othersEcoPoint', ctx))
 
-    props.push(new Prop(50, 50, "..\\media\\props\\glassWineFull.png", "glass", "trash", H, W, ctx))
-    props.push(new Prop(50, 50, "..\\media\\props\\metalCanSoda.png", "metal", "can", H, W, ctx))
-    props.push(new Prop(50, 50, "..\\media\\props\\plasticPop4.png", "metal", "trash", H, W, ctx))
-    props.push(new Prop(50, 50, "..\\media\\props\\plasticBleach.png", "metal", "trash", H, W, ctx))
+    props.push(new Prop(50, 50, "..\\media\\props\\glass01.png", "glass", H, W, ctx))
+    props.push(new Prop(50, 50, "..\\media\\props\\metal01.png", "metal", H, W, ctx))
+    props.push(new Prop(50, 50, "..\\media\\props\\plastic01.png", "metal", H, W, ctx))
+    props.push(new Prop(50, 50, "..\\media\\props\\plastic02.png", "metal", H, W, ctx))
     localStorage.setItem('player', JSON.stringify({name:"JOHN DOE", point: 100, bag: props}))
 
 
@@ -57,6 +61,10 @@ function render() {
     ctx.clearRect(0, 0, W, H)
     ctx.fillRect(0, 0, W, H)
     ctx.drawImage(background,0,0,W,H)
+/*     ctx.font = "20px Georgia";
+    ctx.fillText(`Points: ${playerDragInDrop.score}`, 10, 30);
+    ctx.font = "20px Georgia";
+    ctx.fillText(`Trash Count: ${playerDragInDrop.bag.length}`, 10, 60); */
     ecopoints.forEach((ecopoint) => {
         ecopoint.update()
     })
