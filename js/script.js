@@ -1,7 +1,9 @@
 import dragAndDropGame from "../js/gameModes/dragAndDropMode.js"
 
 
-
+const bg_music = new Audio ("../media/sound/menu_music.mp3")
+bg_music.volume = 0.1
+bg_music.play()
 
 //Sounds
 localStorage.setItem("volume", JSON.stringify(1))

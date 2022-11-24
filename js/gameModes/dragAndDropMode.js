@@ -6,6 +6,9 @@ import EcoPoint from "../class/ecoPointClass.js"
 //SOUNDS
 const missSound = new Audio ("../media/sound/miss.mp3")
 const successSound = new Audio ("../media/sound/success.mp3")
+const drag_music = new Audio ("../media/music/drag_music.mp3")
+drag_music.volume = 0.1
+drag_music.play()
 
 //GLOBALS
 const canvas = document.querySelector('canvas');
