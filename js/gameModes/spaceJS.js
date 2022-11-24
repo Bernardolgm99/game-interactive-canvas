@@ -13,14 +13,13 @@ const H = canvas.height;
 //animation bugged trowing
 class PropSpace {
     tImg = new Image()
-    constructor(h, img, type, name, x, y) {
+    constructor(h, img, type, x, y) {
         this.h = h;
         this.w = h;
         this.tImg.src = img;
         this.tImg.height = h;
         this.tImg.width = h;
         this.type = type;
-        this.name = name;
         this.ground = false;
         this.colisionPlayer = false;
         this.x = x;
@@ -54,7 +53,7 @@ class PropSpace {
             } else {this.colisionPlayer = true; break;}
         };
         if(this.colisionPlayer){
-            playerBag.push(new Prop(this.h, this.w, this.tImg.src, this.type, this.name, H, W, ctx));
+            playerBag.push(new Prop(this.h, this.w, this.tImg.src, this.type, H, W, ctx));
             this.removeTrash()//remove trash
         }
         //points
@@ -136,6 +135,7 @@ class Shot {
             } else {
                 this.x = xp + 25
                 this.y = yp
+                fleft = false;
             }
 
             //agle random far not really accurate
@@ -213,29 +213,31 @@ clouds.push(new C9(0.04, "#EBEBEB", 150, 45, 350, 50),
             new C9(0.1, "#EBEBEB", 1150, 100, 150, 35),
             new C9(0.1, "white", 1200, 80, 150, 35))
 //player position and atributes
-let xp = 100, yp = 700, w= 77, h= 80, pMovement = 1.3, playerBag = [], points = 0; 
-let idleLeft = new Image(),idleRight = new Image(),walkRight = new Image(),walkLeft = new Image(),trowLeft = new Image(),trowRight = new Image(),bg = new Image();
-let currentFrame = 0;
-idleRight.src = '../media/animation_player/static_right2.png'; idleRight.width = w; idleRight.height = h;
-walkRight.src = '../media/animation_player/walk_right2.png'; walkRight.width = w; walkRight.height = h;
-walkLeft.src = '../media/animation_player/walk_left2.png'; walkLeft.width = w; walkLeft.height = h;
-trowLeft.src = '../media/animation_player/trow_left1.png'; trowLeft.width = w; trowLeft.height = h;
-trowRight.src = '../media/animation_player/trow_right1.png'; trowRight.width = w; trowRight.height = h;
-idleLeft.src = '../media/animation_player/static_left2.png'; idleLeft.width = w; idleLeft.height = h;
-let frameIndex = 0,frameIndexTrow = 0;
-//keys
-let rightKey = false, leftKey = false, upKey = false, downKey = false, fleft = false, spaceKey = false, easterEgg = false;
-//shot
-let sizeRock = Math.floor(Math.random()* (25 - 15)+15), shot = new Shot(sizeRock, '../media/rock.png'), shoted = false;
-//checkColison shot
-let colision = false, xrSpace, yrSpace;
-//calculate Shots
-let angle, startShoot = false, dashAvailabe = false, scale;
-//trash
-let trash = [], trashSize, bgGround =  new Image(), numTrash = 10, type, cat;
-let trashSrc = ['../media/props/glassWineFull.png', '../media/props/metalCanSoda.png', '../media/props/plasticBleach.png', '../media/props/plasticPop4.png'];
-//arvores
-let trees = [] 
+function start(){
+
+    let xp = 100, yp = 700, w= 77, h= 80, pMovement = 1.3, playerBag = [], points = 0;
+    let idleLeft = new Image(),idleRight = new Image(),walkRight = new Image(),walkLeft = new Image(),trowLeft = new Image(),trowRight = new Image(),bg = new Image();
+    let currentFrame = 0;
+    idleRight.src = '../media/animation_player/static_right2.png'; idleRight.width = w; idleRight.height = h;
+    walkRight.src = '../media/animation_player/walk_right2.png'; walkRight.width = w; walkRight.height = h;
+    walkLeft.src = '../media/animation_player/walk_left2.png'; walkLeft.width = w; walkLeft.height = h;
+    trowLeft.src = '../media/animation_player/trow_left1.png'; trowLeft.width = w; trowLeft.height = h;
+    trowRight.src = '../media/animation_player/trow_right1.png'; trowRight.width = w; trowRight.height = h;
+    idleLeft.src = '../media/animation_player/static_left2.png'; idleLeft.width = w; idleLeft.height = h;
+    let frameIndex = 0,frameIndexTrow = 0;
+    //keys
+    let rightKey = false, leftKey = false, upKey = false, downKey = false, fleft = false, spaceKey = false, easterEgg = false;
+    //shot
+    let sizeRock = Math.floor(Math.random()* (25 - 15)+15), shot = new Shot(sizeRock, '../media/rock.png'), shoted = false;
+    //checkColison shot
+    let colision = false, xrSpace, yrSpace;
+    //calculate Shots
+    let angle, startShoot = false, dashAvailabe = false, scale;
+    //trash
+    let trash = [], trashSize, bgGround =  new Image(), numTrash = 10, type, cat;
+    //arvores
+    let trees = [] 
+}
 
 //keys EVENTS
 window.addEventListener('keydown', e => {
@@ -272,6 +274,10 @@ canvas.addEventListener('click', e => {
 })
 
 //function
+function imgRandom(n){
+    let trashSrc = [`../media/props/glass0${Math.round(Math.random()*4 + 1)}.png`, `../media/props/metal0${Math.round(Math.random()*5+1)}.png`, `../media/props/plastic0${Math.round(Math.random()*5+1)}.png`, `../media/props/other0${Math.round(Math.random()*6+1)}.png`];
+    return trashSrc[n]
+}
 function trashRender(){
     //escolher arvore
     trees.forEach((tree) => {
@@ -294,18 +300,14 @@ function trashRender(){
                 switch (random) {
                     case 0:
                         type = 'glass'
-                        cat = 'bottle'
                     case 1:
                         type = 'metal'
-                        cat = 'soda'
                     case 2:
                         type = 'plastic'
-                        cat = 'bottle'
                     case 3:
-                        type = 'plastic'
-                        cat = 'bottle'
+                        type = 'other'
                 }
-                trash.push(new PropSpace(trashSize, trashSrc[random], type, cat, x, y))
+                trash.push(new PropSpace(trashSize, imgRandom(random), type, x, y))
             }
         }
     })
@@ -322,7 +324,7 @@ function treesRender(){
     if(nTimes > 4) nTimes = 4; //fazer mais provavel que sejam 4 arvores
     let spaceTree = Math.floor(W/nTimes)
     for(let i = 1; i <= nTimes; i++){
-        let sizes = Math.floor(Math.random() * (8*H/10 - 7*H/10) + 7*H/10)
+        let sizes = Math.floor(Math.random() * (7*H/10 - 6*H/10) + 7*H/10)
         let x = Math.floor(Math.random()*(spaceTree*i - spaceTree*(i-1)) + spaceTree*(i-1));
         let y = Math.floor(Math.random()*(9*H/10 - 2*H/10)+2*H/10);
         tree = new Trees(sizes, '..\\media/pixel-tree1.png', x, y)
@@ -338,11 +340,13 @@ function treesRender(){
         }
         trees.push(tree)
 }}
+start()
 //trash placement calculator
 treesRender()
 trashRender()
 
 function render() {
+    console.log(playerBag)
     //clear the Canvas
     ctx.clearRect(0, 0, W, H);
     //bg
@@ -375,7 +379,9 @@ function render() {
         if(currentFrame%24 == 0)  frameIndex++;
         if (frameIndex == 6) frameIndex = 0; //reset the number of frames counter
         if(currentFrame >= 120) currentFrame = 0;
-    } 
+    } else{
+        rightKey = false;
+    }
     if (leftKey && xp > 0){
         xp-=pMovement;
         //walkleft
@@ -383,6 +389,8 @@ function render() {
         if(currentFrame%24 == 0)  frameIndex++;
         if (frameIndex == 6) frameIndex = 0; //reset the number of frames counter
         if(currentFrame >= 120) currentFrame = 0;
+    } else {
+        leftKey = false;
     }
     if (downKey && yp + h < H){
         yp+=pMovement;
@@ -398,6 +406,8 @@ function render() {
             if (frameIndex == 6) frameIndex = 0; //reset the number of frames counter
             if(currentFrame >= 120) currentFrame = 0;
         }
+    } else {
+        downKey = false;
     }
     if (upKey && yp + h > 8*H/10){
         yp-=pMovement;
@@ -413,7 +423,9 @@ function render() {
             if (frameIndex == 6) frameIndex = 0; //reset the number of frames counter
             if(currentFrame >= 120) currentFrame = 0;
         }
-    } 
+    } else {
+        upKey = false;
+    }
     if(!upKey && !downKey && !rightKey && !leftKey && !shoted){
          //idle
          if(fleft){
@@ -428,8 +440,6 @@ function render() {
             if(currentFrame >= 120) currentFrame = 0;
         }
     }
-
-    
     if(shoted && startShoot){
         //trow
         if(fleft){
