@@ -7,18 +7,19 @@ const H = canvas.height;
 
 //GLOBALS
 //add dash
-//update backgrounds
-//trash img
-// player sprites
-//trow rock random rotation, rotating while trow?
-//last checks
+//clouds moving
+//trash img update
+//rotate trash
+//animation bugged trowing
 class PropSpace {
-    constructor(h, img, type, name, x, y) {
+    tImg = new Image()
+    constructor(h, img, type, x, y) {
         this.h = h;
         this.w = h;
-        this.img = img;
+        this.tImg.src = img;
+        this.tImg.height = h;
+        this.tImg.width = h;
         this.type = type;
-        this.name = name;
         this.ground = false;
         this.colisionPlayer = false;
         this.x = x;
@@ -26,20 +27,15 @@ class PropSpace {
         this.fall = false
     }
     update() {
-        ctx.clearRect(this.x, this.y, this.w, this.h)
-        ctx.fillStyle = this.img
-        ctx.beginPath()
-        ctx.fillRect(this.x, this.y, this.w, this.h)
-        ctx.closePath()
+        ctx.drawImage(this.tImg, this.x, this.y, this.w, this.h)
         if(colision){
             if (this.fall){
-                ctx.fillStyle = 'gray';
                 let finishPath = yp + trashSize
-                ctx.fillRect(this.x, this.y, this.w, this.h)
+                ctx.drawImage(this.tImg, this.x, this.y, this.w, this.h)
                 if(!this.ground){
                     this.x += this.dx
                     this.y += this.dy 
-                    this.dy += 0.05
+                    this.dy += 0.075
                     if (this.x + this.w < W || this.x < 0){
                     } else {this.dx = -this.dx;}
                     if (this.x + this.w > W || this.x > 0){
@@ -57,15 +53,15 @@ class PropSpace {
             } else {this.colisionPlayer = true; break;}
         };
         if(this.colisionPlayer){
-            playerBag.push(new Prop(this.h, this.w, this.img, this.type, this.name, H, W, ctx));
+            playerBag.push(new Prop(this.h, this.w, this.tImg.src, this.type, H, W, ctx));
             this.removeTrash()//remove trash
         }
         //points
         if(this.colisionPlayer && !this.ground){
-            points += Math.round(yp-this.y)
+            points += Math.round(yp-this.y)*5
         } 
         if(this.colisionPlayer && this.ground){
-            points += Math.round(-((yp-this.y)/3))
+            points += Math.round(-((yp-this.y)/3))*5
         }
     }
     calculateTrag(dx, dy){
@@ -91,13 +87,20 @@ class Shot {
         this.shotImg.height = h
         this.x = xp;
         this.y = yp;
+        this.rotation = 0;
     }
     update() {
         //SHHOT
         if (startShoot){
-            ctx.drawImage(this.shotImg, this.x, this.y, this.w, this.h)
+            //change rotation
+            this.rotation += 0.05
+            ctx.save()
+            ctx.translate(this.x+this.w/2, this.y+this.h/2)
+            ctx.rotate(this.rotation)
+            ctx.drawImage(this.shotImg, -this.w/2, -this.h/2, this.w, this.h)
+            ctx.restore()
             this.x += this.dx
-            this.y += this.dy 
+            this.y += this.dy
             this.dy += 0.05
             shot.checkColison()
             //add colisions walls canvas
@@ -107,8 +110,9 @@ class Shot {
             } else {this.dx = -this.dx;}
             if (this.y >= yp + 50 || colision){
                 startShoot = false;
+                shoted = false;
                 dashAvailabe = false; 
-                sizeRock = Math.floor(Math.random()* (18 - 10)+10)           
+                sizeRock = Math.floor(Math.random()* (25 - 15)+15)           
             }
         }
     }
@@ -131,6 +135,7 @@ class Shot {
             } else {
                 this.x = xp + 25
                 this.y = yp
+                fleft = false;
             }
 
             //agle random far not really accurate
@@ -175,21 +180,64 @@ class Trees {
         ctx.drawImage(this.img, this.x, this.y, this.w, this.h)
     }
 }
-
+//clouds
+class C9 {
+    constructor(velocity, color, x, y, w, h){
+        this.velocity= velocity;
+        this.color = color;
+        this.x = x;
+        this.y = y;
+        this.h = h;
+        this.w = w;
+    }
+    update(){
+        this.x += this.velocity
+        if(this.x > W){
+            this.x = -this.w
+        }
+        ctx.fillStyle= this.color
+        ctx.fillRect(this.x, this.y, this.w, this.h)
+    }
+}
+//clouds
+let clouds = []
+clouds.push(new C9(0.04, "#EBEBEB", 150, 45, 350, 50),
+            new C9(0.04, "white", 2, 2, 350, 50),
+            new C9(0.02, "#EBEBEB", 45, 140, 120, 30),
+            new C9(0.02, "white", 2, 132, 120, 30),
+            new C9(0.08, "#EBEBEB", 750, 10, 160, 30),
+            new C9(0.08, "white", 800, 0, 180, 20),
+            new C9(0.05, "#EBEBEB", 1350, 0, 400, 55),
+            new C9(0.05, "white", 1100, 0, 400, 30),
+            new C9(0.05, "white", 1750, 100, 400, 35),
+            new C9(0.1, "#EBEBEB", 1150, 100, 150, 35),
+            new C9(0.1, "white", 1200, 80, 150, 35))
 //player position and atributes
-let xp = 100, yp = 700, w= 50, h= 70, pMovement = 1.3, playerBag = [], points = 0;
-//keys
-let rightKey = false, leftKey = false, upKey = false, downKey = false, fleft = false, spaceKey = false, easterEgg = false;
-//shot
-let sizeRock = Math.floor(Math.random()* (25 - 18)+18), shot = new Shot(sizeRock, '../../media/rock.png');
-//calculate Shots
-let angle, startShoot = false, dashAvailabe = false, scale;
-//trash
-let trash = [], trashSize = Math.floor(Math.random()*(40 - 30) + 30), bgGround =  new Image();
-//checkColisons
-let colision = false, xrSpace, yrSpace;//colisionPlayer = false
-//arvores
-let trees = []
+function start(){
+
+    let xp = 100, yp = 700, w= 77, h= 80, pMovement = 1.3, playerBag = [], points = 0;
+    let idleLeft = new Image(),idleRight = new Image(),walkRight = new Image(),walkLeft = new Image(),trowLeft = new Image(),trowRight = new Image(),bg = new Image();
+    let currentFrame = 0;
+    idleRight.src = '../media/animation_player/static_right2.png'; idleRight.width = w; idleRight.height = h;
+    walkRight.src = '../media/animation_player/walk_right2.png'; walkRight.width = w; walkRight.height = h;
+    walkLeft.src = '../media/animation_player/walk_left2.png'; walkLeft.width = w; walkLeft.height = h;
+    trowLeft.src = '../media/animation_player/trow_left1.png'; trowLeft.width = w; trowLeft.height = h;
+    trowRight.src = '../media/animation_player/trow_right1.png'; trowRight.width = w; trowRight.height = h;
+    idleLeft.src = '../media/animation_player/static_left2.png'; idleLeft.width = w; idleLeft.height = h;
+    let frameIndex = 0,frameIndexTrow = 0;
+    //keys
+    let rightKey = false, leftKey = false, upKey = false, downKey = false, fleft = false, spaceKey = false, easterEgg = false;
+    //shot
+    let sizeRock = Math.floor(Math.random()* (25 - 15)+15), shot = new Shot(sizeRock, '../media/rock.png'), shoted = false;
+    //checkColison shot
+    let colision = false, xrSpace, yrSpace;
+    //calculate Shots
+    let angle, startShoot = false, dashAvailabe = false, scale;
+    //trash
+    let trash = [], trashSize, bgGround =  new Image(), numTrash = 10, type, cat;
+    //arvores
+    let trees = [] 
+}
 
 //keys EVENTS
 window.addEventListener('keydown', e => {
@@ -217,41 +265,66 @@ window.addEventListener('keyup', e => {
 //canvas EVENTS
 canvas.addEventListener('click', e => {
     let xr = e.offsetX; let yr = e.offsetY;
-    shot.shotsCalculator(xr, yr)
-}) 
-canvas.addEventListener('mousemove', e => {
-    xrSpace = e.offsetX; yrSpace = e.offsetY;
+    
+    if (!startShoot)
+    {
+        shot.shotsCalculator(xr, yr)
+        shoted = true;
+    }
 })
 
 //function
+function imgRandom(n){
+    let trashSrc = [`../media/props/glass0${Math.round(Math.random()*4 + 1)}.png`, `../media/props/metal0${Math.round(Math.random()*5+1)}.png`, `../media/props/plastic0${Math.round(Math.random()*5+1)}.png`, `../media/props/other0${Math.round(Math.random()*6+1)}.png`];
+    return trashSrc[n]
+}
 function trashRender(){
     //escolher arvore
     trees.forEach((tree) => {
         //criar lixo na arvore, x vezes
-        let nTimes = Math.floor(Math.random()*(6 - 2)+ 2)
-        for (let i = 0; i < nTimes; i++){
-            let x = Math.random() * (tree.hwMax- trashSize)+ tree.hwMin // [MIN;MAX] = MIN + random*(MAX-ITEM)
-            let y = Math.random() * (tree.hhMax- trashSize) + tree.hhMin
-            trash.push(new PropSpace(trashSize, 'black', 'metal', 'trash', x, y))
+        let nTimes = Math.floor(Math.random()*(4 - 2)+ 2)
+        if(trash.length <= numTrash) {
+            for (let i = 0; i < nTimes; i++){
+                trashSize = Math.floor(Math.random()*(45 - 35) + 35)
+                let x = Math.random() * (tree.hwMax- trashSize)+ tree.hwMin // [MIN;MAX] = MIN + random*(MAX-ITEM)
+                let y = Math.random() * (tree.hhMax- trashSize) + tree.hhMin
+                //check trash colision
+                trash.forEach(garbage => {
+                    if (x + trashSize < garbage.x || x > garbage.x + garbage.w || y + trashSize < garbage.y || y > garbage.y + garbage.h){
+                    } else {
+                        x = Math.random() * (tree.hwMax- trashSize)+ tree.hwMin
+                        y = Math.random() * (tree.hhMax- trashSize) + tree.hhMin
+                    }
+                })
+                let random = Math.round(Math.random() * 3)
+                switch (random) {
+                    case 0:
+                        type = 'glass'
+                    case 1:
+                        type = 'metal'
+                    case 2:
+                        type = 'plastic'
+                    case 3:
+                        type = 'other'
+                }
+                trash.push(new PropSpace(trashSize, imgRandom(random), type, x, y))
+            }
         }
     })
     
 }
 function checkGround(){
-   /*  console.log(trash, playerBag); */
     trash.forEach(garbage => {
         garbage.colPlayer()
     })
-        
-/*     console.log(playerBag)
- */}
+}
 function treesRender(){
     let tree ={}
     let nTimes = Math.floor(Math.random()*(6 - 3)+ 3) //HOW MANY TIMES
     if(nTimes > 4) nTimes = 4; //fazer mais provavel que sejam 4 arvores
     let spaceTree = Math.floor(W/nTimes)
     for(let i = 1; i <= nTimes; i++){
-        let sizes = Math.floor(Math.random() * (8*H/10 - 7*H/10) + 7*H/10)
+        let sizes = Math.floor(Math.random() * (7*H/10 - 6*H/10) + 7*H/10)
         let x = Math.floor(Math.random()*(spaceTree*i - spaceTree*(i-1)) + spaceTree*(i-1));
         let y = Math.floor(Math.random()*(9*H/10 - 2*H/10)+2*H/10);
         tree = new Trees(sizes, '..\\media/pixel-tree1.png', x, y)
@@ -267,13 +340,20 @@ function treesRender(){
         }
         trees.push(tree)
 }}
+start()
 //trash placement calculator
 treesRender()
 trashRender()
 
 function render() {
+    console.log(playerBag)
     //clear the Canvas
     ctx.clearRect(0, 0, W, H);
+    //bg
+    bg.src = '../media/bgSpace.png';
+    ctx.drawImage(bg, 0, 0)
+    //clouds
+    clouds.forEach((cloud) => {cloud.update()})
     //ground
     ctx.fillStyle = 'rgb(80,155,102)'
     ctx.fillRect(0, 670, W, H)
@@ -284,22 +364,100 @@ function render() {
     ctx.fillText(`Trash Count: ${playerBag.length}`, 10, 60);
     //render trees
     trees.forEach((tree)=>{ tree.update() })
+    //ground
+    bgGround.src = '../media/groundSpace.png';
+    ctx.drawImage(bgGround, 0, 690)
     //render shot
     shot.update()
-    //ground
-    bgGround.src = '../../media/groundSpace.png';
-    ctx.drawImage(bgGround, 0, 690)
     //render trash
     trash.forEach((prop) => { prop.update() })
-    //player boundering;
-    if (rightKey && xp + w < W) xp+=pMovement;
-    if (leftKey && xp > 0) xp-=pMovement;
-    if (downKey && yp + h < H) yp+=pMovement;
-    if (upKey && yp + h > 8*H/10) yp-=pMovement;
-    //player
-    ctx.fillStyle = 'blue';
-    ctx.fillRect(xp,yp,w,h)    
-
-    window.requestAnimationFrame(render);
+    //player boundering && player animations
+    if (rightKey && xp + w < W){
+        xp+=pMovement;
+        //walkright
+        ctx.drawImage(walkRight, frameIndex * 30, 0, 30, 46, xp+5, yp-5, w-5, h+5);
+        if(currentFrame%24 == 0)  frameIndex++;
+        if (frameIndex == 6) frameIndex = 0; //reset the number of frames counter
+        if(currentFrame >= 120) currentFrame = 0;
+    } else{
+        rightKey = false;
+    }
+    if (leftKey && xp > 0){
+        xp-=pMovement;
+        //walkleft
+        ctx.drawImage(walkLeft, frameIndex * 30, 0, 30, 46, xp+5, yp-5, w-5, h+5);
+        if(currentFrame%24 == 0)  frameIndex++;
+        if (frameIndex == 6) frameIndex = 0; //reset the number of frames counter
+        if(currentFrame >= 120) currentFrame = 0;
+    } else {
+        leftKey = false;
+    }
+    if (downKey && yp + h < H){
+        yp+=pMovement;
+        //walking down
+        if(fleft){
+            ctx.drawImage(walkLeft, frameIndex * 30, 0, 30, 46, xp+5, yp-5, w-5, h+5);
+            if(currentFrame%24 == 0)  frameIndex++;
+            if (frameIndex == 6) frameIndex = 0; //reset the number of frames counter
+            if(currentFrame >= 120) currentFrame = 0;
+        } else {
+            ctx.drawImage(walkRight, frameIndex * 30, 0, 30, 46, xp+5, yp-5, w-5, h+5);
+            if(currentFrame%24 == 0)  frameIndex++;
+            if (frameIndex == 6) frameIndex = 0; //reset the number of frames counter
+            if(currentFrame >= 120) currentFrame = 0;
+        }
+    } else {
+        downKey = false;
+    }
+    if (upKey && yp + h > 8*H/10){
+        yp-=pMovement;
+        //walking up
+        if(fleft){
+            ctx.drawImage(walkLeft, frameIndex * 30, 0, 30, 46, xp+5, yp-5, w-5, h+5);
+            if(currentFrame%24 == 0)  frameIndex++;
+            if (frameIndex == 6) frameIndex = 0; //reset the number of frames counter
+            if(currentFrame >= 120) currentFrame = 0;
+        } else {
+            ctx.drawImage(walkRight, frameIndex * 30, 0, 30, 46, xp+5, yp-5, w-5, h+5);
+            if(currentFrame%24 == 0)  frameIndex++;
+            if (frameIndex == 6) frameIndex = 0; //reset the number of frames counter
+            if(currentFrame >= 120) currentFrame = 0;
+        }
+    } else {
+        upKey = false;
+    }
+    if(!upKey && !downKey && !rightKey && !leftKey && !shoted){
+         //idle
+         if(fleft){
+            ctx.drawImage(idleLeft, frameIndex * 32, 0, 32, 40, xp, yp, w, h);
+            if(currentFrame%24 == 0)  frameIndex++;
+            if (frameIndex == 6) frameIndex = 0; //reset the number of frames counter
+            if(currentFrame >= 120) currentFrame = 0;
+        } else {
+            ctx.drawImage(idleRight, frameIndex * 32, 0, 32, 40, xp, yp, w, h);
+            if(currentFrame%24 == 0)  frameIndex++
+            if (frameIndex == 5) frameIndex = 0 //reset the number of frames counter
+            if(currentFrame >= 120) currentFrame = 0;
+        }
+    }
+    if(shoted && startShoot){
+        //trow
+        if(fleft){
+            ctx.drawImage(trowLeft, frameIndexTrow * 30, 0, 30, 40, xp, yp, w, h);
+            if(currentFrame%15 == 0)  frameIndexTrow++;
+            if (frameIndexTrow == 4) frameIndexTrow = 0, shoted = false; //reset the number of frames counter
+            if(currentFrame >= 120) currentFrame = 0;
+        } else {
+            ctx.drawImage(trowRight, frameIndexTrow * 30, 0, 30, 40, xp, yp, w, h);
+            if(currentFrame%15 == 0)  frameIndexTrow++;
+            if (frameIndexTrow == 4) frameIndexTrow = 0, shoted = false; //reset the number of frames counter
+            if(currentFrame >= 120) currentFrame = 0;
+        }
+        
+    }
+    currentFrame++
 }
-window.onload = render;
+
+idleLeft.onload = function () {
+    setInterval(render, 1000/120)
+};
