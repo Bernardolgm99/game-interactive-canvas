@@ -10,23 +10,27 @@ let H = canvas.height
 let imgX = 370
 let imgY = 0
 
+//SOUND
+const bg_music = new Audio ("../media/sound/bg_music.mp3")
+bg_music.volume = 0.1
+bg_music.play()
+
 //PROPS
 let chosenProps = []
 let randomProp
-let props = [{id:1, name: `metalCanSoda`, img: `/media/props/metalCanSoda.png`, propX: -240, propY: -465, validate: false},
-             {id:2, name: `plasticBleach`, img: `/media/props/plasticBleach.png`, propX: -1310, propY: -390, validate: false},
-             {id:3, name: `plasticPop`, img: `/media/props/plasticPop4.png`, propX: -980, propY: -430, validate: false},
-             {id:4, name: `glassWine`, img: `/media/props/glassWineFull.png`, propX: 400, propY: -400, validate: false},
-             {id:5, name: `metalCanSoda1`, img: `/media/props/metalCanSoda.png`, propX: -260, propY: -750, validate: false},
-             {id:6, name: `plasticPop1`, img: `/media/props/plasticPop4.png`, propX: 580, propY: -680, validate: false},
-             {id:7, name: `glassWine1`, img: `/media/props/glassWineFull.png`, propX: 350, propY: -1050, validate: false},
-             {id:8, name: `plasticBleach1`, img: `/media/props/plasticBleach.png`, propX: 590, propY: -1300, validate: false},
-             {id:9, name: `glassWine2`, img: `/media/props/glassWineFull.png`, propX: -475, propY: -1050, validate: false},
-             {id:10, name: `plasticBleach2`, img: `/media/props/plasticBleach.png`, propX: -730, propY: -1300, validate: false},
-             {id:11, name: `metalCanSoda2`, img: `/media/props/metalCanSoda.png`, propX: -1110, propY: -1000, validate: false}
+let props = [{id:1, name: `metalCanSoda`, img: `/media/props/glass01.png`, propX: 300, propY: 550, validate: false},
+             {id:2, name: `plasticBleach`, img: `/media/props/glass02.png`, propX: 1200, propY: 500, validate: false},
+             {id:3, name: `plasticPop`, img: `/media/props/glass03.png`, propX: 1500, propY: 500, validate: false},
+             {id:4, name: `glassWine`, img: `/media/props/glass04.png`, propX: -475, propY: 485, validate: false},
+             {id:5, name: `metalCanSoda1`, img: `/media/props/glass05.png`, propX: -650, propY: 825, validate: false},
+             {id:6, name: `plasticPop1`, img: `/media/props/metal01.png`, propX: -450, propY: 1250, validate: false},
+             {id:7, name: `glassWine1`, img: `/media/props/metal02.png`, propX: -700, propY: 1600, validate: false},
+             {id:8, name: `plasticBleach1`, img: `/media/props/metal03.png`, propX: 300, propY: 900, validate: false},
+             {id:9, name: `glassWine2`, img: `/media/props/metal04.png`, propX: 575, propY: 1300, validate: false},
+             {id:10, name: `plasticBleach2`, img: `/media/props/metal05.png`, propX: 850, propY: 1650, validate: false},
+             {id:11, name: `metalCanSoda2`, img: `/media/props/other01.png`, propX: 1350, propY: 1225, validate: false}
             ]
-let propDimensionX = 1200
-let propDimensionY = 700
+/* let test1 = {name: 'test', img: `/media/props/metal04.png`, propX: 1350, propY:1225} */
 let propName
 
 
@@ -37,7 +41,7 @@ let imgW
 //CHARACTER INITIAL POSITION
 let characterX = 690
 let characterY = 300 
-let speed = 20
+let speed = 4
 
 //DIMENSIONS
 let dimensionX = 500
@@ -77,9 +81,8 @@ let character_right = new Image();
 let character_left = new Image();
 let character_right_walk = new Image();
 let character_left_walk = new Image();
-let metalCanProp = new Image();
-let plasticBleach = new Image();
 let backpack = new Image();
+/* test1.name = new Image(); */
 chosenProps.forEach(prop => {
     if(prop.validate == true){
         prop.name = new Image() 
@@ -104,6 +107,7 @@ function base(){
             prop.name.src = prop.img
         }
     }) 
+/*     test1.name.src = test1.img */
 
 
     base_image.onload = function(){
@@ -145,11 +149,12 @@ function injectData() {
         for(let i = 0; i < 5; i++){
             
             randomProp = Math.floor(Math.random() * 11) + 1
-            
+
             if(!chosenProps.find(prop => prop.id == randomProp)){
-                props[randomProp].validate = true
-                chosenProps.push(props[randomProp])
-                console.log(chosenProps)
+                props[randomProp-1].validate = true
+                chosenProps.push(props[randomProp-1])
+            } else {
+                i--
             }
         }
         localStorage.setItem('chosenProps', JSON.stringify(chosenProps))
@@ -168,12 +173,14 @@ function render() {
     //base_image.src = `img/map.png`;
     //console.log(imgX, imgY)
     ctx.drawImage(base_image,  imgX, imgY, dimensionX, dimensionY, 0, 0, W, H);
-    ctx.drawImage(backpack, -7150, -70, 8000, 4800, 0, 0, W, H);
+    ctx.drawImage(backpack, 1275, 0, 100, 100);
 
+/*     ctx.drawImage(test1.name, test1.propX, test1.propY) */
     
     chosenProps.forEach(prop => {
         if(prop.validate){
-            ctx.drawImage(prop.name, prop.propX, prop.propY, propDimensionX, propDimensionY, 0, 0, W, H) 
+            // ctx.drawImage(prop.name, prop.propX, prop.propY, propDimensionX, propDimensionY, 0, 0, W, H)
+            ctx.drawImage(prop.name, prop.propX, prop.propY)  
         }
     })
     
@@ -227,9 +234,11 @@ window.addEventListener('keydown', (event) => {
                         } else {
                             if(imgX > 0){ //MOVE MAP
                                 imgX -= speed/2
+                                
                                 chosenProps.forEach(prop => {
-                                    prop.propX -= speed*1.2
+                                    prop.propX += speed*1.45
                                 })
+                                /* test1.propX += speed*1.45 */
                                 direction = character_left_walk
                                 right = false
                                 left = true
@@ -246,53 +255,52 @@ window.addEventListener('keydown', (event) => {
             //console.log('left')
             break;
         case 38: 
-            ctx.clearRect(0, 0, W, H)
-            ctx.drawImage(hitbox_image, imgX, imgY, dimensionX, dimensionY, 0, 0, W, H)
+        ctx.clearRect(0, 0, W, H)
+        ctx.drawImage(hitbox_image, imgX, imgY, dimensionX, dimensionY, 0, 0, W, H)
 
-            //PIXEL COLOR CHECK
-            pixel = ctx.getImageData(characterX, characterY-7, characterDimensions, characterDimensions) 
+        //PIXEL COLOR CHECK
+        pixel = ctx.getImageData(characterX, characterY-7, characterDimensions, characterDimensions) 
 
-            //PIXEL COLOR CHECK
-            if(!pixelCheck(pixel.data, 0, 0, 0)){ //CHECK IF THE COLOR PIXEL COLOR IS BLACK
-                if(!pixelCheck(pixel.data, 0, 255, 0)){ //CHECK IF THE COLOR PIXEL COLOR IS GREEN
-                    if(!pixelCheck(pixel.data, 0, 0, 255)){ //CHECK IF THE COLOR PIXEL COLOR IS BLUE
-                        if(characterY > (W * 0.15)){ //MAKES THE CHARACTER MOVE
+        //PIXEL COLOR CHECK
+        if(!pixelCheck(pixel.data, 0, 0, 0)){ //CHECK IF THE COLOR PIXEL COLOR IS BLACK
+            if(!pixelCheck(pixel.data, 0, 255, 0)){ //CHECK IF THE COLOR PIXEL COLOR IS GREEN
+                if(!pixelCheck(pixel.data, 0, 0, 255)){ //CHECK IF THE COLOR PIXEL COLOR IS BLUE
+                    if(characterY > (W * 0.15)){ //MAKES THE CHARACTER MOVE
+                        characterY -= speed
+                        if(right == true){
+                            direction = character_right_walk
+                        } else {
+                            direction = character_left_walk
+                        }
+                    } else {
+                        if(imgY > 0){ //MOVE MAP
+                            imgY -= speed/2
+                            chosenProps.forEach(prop => {
+                                prop.propY += speed*1.43
+                            })
+                            /* test1.propY += speed*1.45 */
+                            if(right == true){
+                                direction = character_right_walk
+                            } else {
+                                direction = character_left_walk
+                            }
+                        } else if(imgY <= 0 && characterY > 0 && characterY != 0){ //THE CHARACTER MOVES ALONE ON THE EDGE
                             characterY -= speed
                             if(right == true){
                                 direction = character_right_walk
                             } else {
                                 direction = character_left_walk
                             }
-                        } else {
-                            if(imgY > 0){ //MOVE MAP
-                                imgY -= speed/2
-                                chosenProps.forEach(prop => {
-                                    prop.propY -= speed*1.15
-                                })
-                                if(right == true){
-                                    direction = character_right_walk
-                                } else {
-                                    direction = character_left_walk
-                                }
-                            } else if(imgY <= 0 && characterY > 0 && characterY != 0){ //THE CHARACTER MOVES ALONE ON THE EDGE
-                                characterY -= speed
-                                if(right == true){
-                                    direction = character_right_walk
-                                } else {
-                                    direction = character_left_walk
-                                }
-                            }
-                    }
-                    }
+                        }
+                }
                 }
             }
-            //console.log('up')
-            break;
+        }
+        //console.log('up')
+        break;
         case 39:
             ctx.clearRect(0, 0, W, H)
             ctx.drawImage(hitbox_image, imgX, imgY, dimensionX, dimensionY, 0, 0, W, H)
-
-            console.log(characterX, characterY)
 
             //PIXEL COLOR CHECK
             pixel = ctx.getImageData(characterX+4, characterY, characterDimensions, characterDimensions) 
@@ -310,8 +318,9 @@ window.addEventListener('keydown', (event) => {
                             if(imgX + dimensionX < imgW){ //MOVE MAP
                                 imgX += speed/2
                                 chosenProps.forEach(prop => {
-                                    prop.propX += speed*1.2
+                                    prop.propX -= speed*1.45
                                 })
+                                /* test1.propX -= speed*1.45 */
                                 direction = character_right_walk
                                 left = false
                                 right = true
@@ -349,9 +358,10 @@ window.addEventListener('keydown', (event) => {
                                 if(imgY + dimensionY < imgH){ //MOVE MAP
                                     imgY += speed/2
                                     chosenProps.forEach(prop => {
-                                        prop.propY += speed*1.15
+                                        prop.propY -= speed*1.43
                                     })
                                     yPosition -= speed*1.25
+                                    /* test1.propY -= speed*1.45 */
                                     if(right == true){
                                         direction = character_right_walk
                                     } else {
@@ -380,18 +390,30 @@ window.addEventListener('keydown', (event) => {
             //PIXEL COLOR CHECK
             pixel = ctx.getImageData(characterX, characterY+25, 25, 25)
             if(pixelCheck(pixel.data, 0, 255, 0)){ //CHECK IF THE COLOR
-                if(tree <= 20000){
-                    console.log('SOU VERDE')
-                    console.log(-characterY + 300)
+                if(tree != 2){
+
+                    let closestTrash = {propX:0, propY: 0}
+                    let closestDist = Infinity
+
                     chosenProps.forEach(prop => {
-                        if(prop.propY <= -characterY -225 && prop.propX <= -characterX -475){
-                            console.log(prop)   
-                            /* tree+=1
-                            //SAVE THE VARIABLE LOCALSTORAGE
-                            localStorage.setItem('tree', JSON.stringify(tree))
-                            location.href = './spaceIndex.html' */
+                        if(prop.propY <= -characterY -225 && prop.propX <= -characterX -475){  
+                            let dist = Math.sqrt(Math.pow((prop.propX - characterX), 2) + Math.pow((prop.propY - characterY), 2)) //COMPARES ALL THE PROOPS TO CHECK WHICH IS THE CLOSEST ONE
+                            if( dist < closestDist){
+                                closestDist =  dist
+                                closestTrash = prop
+                            }
                         }
                     })
+                    tree+=1
+                    chosenProps.forEach(chosenprop => {
+                        if(chosenprop.id == closestTrash.id){
+                            chosenprop.validate = false
+                        }
+                    })
+                    //SAVE THE VARIABLE LOCALSTORAGE
+                    localStorage.setItem('tree', JSON.stringify(tree))
+                    localStorage.setItem('chosenProps', JSON.stringify(chosenProps))
+                    location.href = './spaceIndex.html' 
                 } else {
                     alert('SEPARA PRIMEIRO O LIXO ANTES DE APANHARES MAIS')
                 }
@@ -412,16 +434,29 @@ window.addEventListener('keydown', (event) => {
 
             pixel = ctx.getImageData(characterX+40, characterY, 25, 25)
             if(pixelCheck(pixel.data, 0, 255, 0)){ //CHECK IF THE COLOR
-                if(tree <= 2000){
-                    console.log('SOU VERDE')
+                if(tree != 2){
+
+                    let closestTrash = {propX:0, propY: 0}
+                    let closestDist = Infinity
+
                     chosenProps.forEach(prop => {
                         if(prop.propX <= -characterX + 200){
-/*                             tree+=1
-                            //SAVE THE VARIABLE LOCALSTORAGE
-                            localStorage.setItem('tree', JSON.stringify(tree))
-                            location.href = './spaceIndex.html' */
-                        }
-                    })
+                            let dist = Math.sqrt(Math.pow((prop.propX - characterX), 2) + Math.pow((prop.propY - characterY), 2)) //COMPARES ALL THE PROOPS TO CHECK WHICH IS THE CLOSEST ONE
+                            if( dist < closestDist){
+                                closestDist =  dist
+                                closestTrash = prop
+                            }
+                        }})
+                        tree+=1
+                        chosenProps.forEach(chosenprop => {
+                            if(chosenprop.id == closestTrash.id){
+                                chosenprop.validate = false
+                            }
+                        })
+                        //SAVE THE VARIABLE LOCALSTORAGE
+                        localStorage.setItem('tree', JSON.stringify(tree))
+                        localStorage.setItem('chosenProps', JSON.stringify(chosenProps))
+                        location.href = './spaceIndex.html'  
                 } else {
                     alert('SEPARA PRIMEIRO O LIXO ANTES DE APANHARES MAIS')
                 }
@@ -440,21 +475,27 @@ window.addEventListener('keydown', (event) => {
             
             pixel = ctx.getImageData(characterX, characterY-20, 25, 25)
             if(pixelCheck(pixel.data, 0, 255, 0)){ //CHECK IF THE COLOR
-                if(tree <= 2000){
-                    console.log('SOU VERDE')
-                    console.log(imgX, imgY)
+                let closestTrash = {propX:0, propY: 0}
+                let closestDist = Infinity
+
+                if(tree != 2){
                     chosenProps.forEach(prop => {
-                        console.log(prop.propX)
-                        console.log(prop.propY)
-                        if(prop.propX < characterX && prop.propX > -characterX + 135){
-                            console.log('up')
-                            console.log(prop)
-/*                             tree+=1
-                            //SAVE THE VARIABLE LOCALSTORAGE
-                            localStorage.setItem('tree', JSON.stringify(tree))
-                            location.href = './spaceIndex.html' */
+                        let dist = Math.sqrt(Math.pow((prop.propX - characterX), 2) + Math.pow((prop.propY - characterY), 2)) //COMPARES ALL THE PROOPS TO CHECK WHICH IS THE CLOSEST ONE
+                        if( dist < closestDist){
+                            closestDist =  dist
+                            closestTrash = prop
+                        }                 
+                    })
+                    tree+=1
+                    chosenProps.forEach(chosenprop => {
+                        if(chosenprop.id == closestTrash.id){
+                            chosenprop.validate = false
                         }
                     })
+                    //SAVE THE VARIABLE LOCALSTORAGE
+                    localStorage.setItem('tree', JSON.stringify(tree))
+                    localStorage.setItem('chosenProps', JSON.stringify(chosenProps))
+                    location.href = './spaceIndex.html'
                 } else {
                     alert('SEPARA PRIMEIRO O LIXO ANTES DE APANHARES MAIS')
                 }
@@ -473,16 +514,30 @@ window.addEventListener('keydown', (event) => {
 
             pixel = ctx.getImageData(characterX-40, characterY, 25, 25)
             if(pixelCheck(pixel.data, 0, 255, 0)){ //CHECK IF THE COLOR
-                if(tree <= 20000){
+                if(tree != 2){
+
+                    let closestTrash = {propX:0, propY: 0}
+                    let closestDist = Infinity
+
                     chosenProps.forEach(prop => {
-                        console.log('SOU VERDE')
                         if(prop.propX <= -characterX + 240){
-/*                             tree+=1
-                            //SAVE THE VARIABLE LOCALSTORAGE
-                            localStorage.setItem('tree', JSON.stringify(tree))
-                            location.href = './spaceIndex.html' */
+                            let dist = Math.sqrt(Math.pow((prop.propX - characterX), 2) + Math.pow((prop.propY - characterY), 2)) //COMPARES ALL THE PROOPS TO CHECK WHICH IS THE CLOSEST ONE
+                            if( dist < closestDist){
+                                closestDist =  dist
+                                closestTrash = prop
+                            }
                         }
                     })
+                    tree+=1
+                    chosenProps.forEach(chosenprop => {
+                        if(chosenprop.id == closestTrash.id){
+                            chosenprop.validate = false
+                        }
+                    })
+                    //SAVE THE VARIABLE LOCALSTORAGE
+                    localStorage.setItem('tree', JSON.stringify(tree))
+                    localStorage.setItem('chosenProps', JSON.stringify(chosenProps))
+                    location.href = './spaceIndex.html'
                 } else {
                     alert('SEPARA PRIMEIRO O LIXO ANTES DE APANHARES MAIS')
                 }
