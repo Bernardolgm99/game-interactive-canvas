@@ -7,15 +7,17 @@ const H = canvas.height;
 
 //GLOBALS
 //add dash
-//update backgrounds
+//clouds moving
 //trash img
-//player sprites
-//last checks
+//animation bugged trowing
 class PropSpace {
+    tImg = new Image()
     constructor(h, img, type, name, x, y) {
         this.h = h;
         this.w = h;
-        this.img = img;
+        this.tImg.src = img;
+        this.tImg.height = h;
+        this.tImg.width = h;
         this.type = type;
         this.name = name;
         this.ground = false;
@@ -25,20 +27,15 @@ class PropSpace {
         this.fall = false
     }
     update() {
-        ctx.clearRect(this.x, this.y, this.w, this.h)
-        ctx.fillStyle = this.img
-        ctx.beginPath()
-        ctx.fillRect(this.x, this.y, this.w, this.h)
-        ctx.closePath()
+        ctx.drawImage(this.tImg, this.x, this.y, this.w, this.h)
         if(colision){
             if (this.fall){
-                ctx.fillStyle = 'gray';
                 let finishPath = yp + trashSize
-                ctx.fillRect(this.x, this.y, this.w, this.h)
+                ctx.drawImage(this.tImg, this.x, this.y, this.w, this.h)
                 if(!this.ground){
                     this.x += this.dx
                     this.y += this.dy 
-                    this.dy += 0.05
+                    this.dy += 0.075
                     if (this.x + this.w < W || this.x < 0){
                     } else {this.dx = -this.dx;}
                     if (this.x + this.w > W || this.x > 0){
@@ -56,7 +53,7 @@ class PropSpace {
             } else {this.colisionPlayer = true; break;}
         };
         if(this.colisionPlayer){
-            playerBag.push(new Prop(this.h, this.w, this.img, this.type, this.name, H, W, ctx));
+            playerBag.push(new Prop(this.h, this.w, this.tImg.src, this.type, this.name, H, W, ctx));
             this.removeTrash()//remove trash
         }
         //points
@@ -183,19 +180,28 @@ class Trees {
 }
 
 //player position and atributes
-let xp = 100, yp = 700, w= 50, h= 70, pMovement = 1.3, playerBag = [], points = 0;
+let xp = 100, yp = 700, w= 77, h= 80, pMovement = 1.3, playerBag = [], points = 0; 
+let idleLeft = new Image(),idleRight = new Image(),walkRight = new Image(),walkLeft = new Image(),trowLeft = new Image(),trowRight = new Image(),bg = new Image();
+let currentFrame = 0;
+idleRight.src = '../media/animation_player/static_right2.png'; idleRight.width = w; idleRight.height = h;
+walkRight.src = '../media/animation_player/walk_right2.png'; walkRight.width = w; walkRight.height = h;
+walkLeft.src = '../media/animation_player/walk_left2.png'; walkLeft.width = w; walkLeft.height = h;
+trowLeft.src = '../media/animation_player/trow_left1.png'; trowLeft.width = w; trowLeft.height = h;
+trowRight.src = '../media/animation_player/trow_right1.png'; trowRight.width = w; trowRight.height = h;
+idleLeft.src = '../media/animation_player/static_left2.png'; idleLeft.width = w; idleLeft.height = h;
+let frameIndex = 0
 //keys
 let rightKey = false, leftKey = false, upKey = false, downKey = false, fleft = false, spaceKey = false, easterEgg = false;
 //shot
-let sizeRock = Math.floor(Math.random()* (25 - 15)+15), shot = new Shot(sizeRock, '../../media/rock.png');
+let sizeRock = Math.floor(Math.random()* (25 - 15)+15), shot = new Shot(sizeRock, '../media/rock.png'), shoted = false;
+//checkColison shot
+let colision = false, xrSpace, yrSpace;
 //calculate Shots
 let angle, startShoot = false, dashAvailabe = false, scale;
 //trash
-let trash = [], trashSize, bgGround =  new Image(), numTrash = 10;
-//checkColisons
-let colision = false, xrSpace, yrSpace;//colisionPlayer = false
+let trash = [], trashSize, bgGround =  new Image(), numTrash = 10, trashSrc = ['../media/props/glassWineFull.png', '../media/props/matalCanSoda.png', '../media/props/plasticBleach.png', '../media/props/plasticPop4.png'];
 //arvores
-let trees = []
+let trees = [] 
 
 //keys EVENTS
 window.addEventListener('keydown', e => {
@@ -223,11 +229,8 @@ window.addEventListener('keyup', e => {
 //canvas EVENTS
 canvas.addEventListener('click', e => {
     let xr = e.offsetX; let yr = e.offsetY;
-    console.log(xr, yr, xp, yp)
     shot.shotsCalculator(xr, yr)
-}) 
-canvas.addEventListener('mousemove', e => {
-    xrSpace = e.offsetX; yrSpace = e.offsetY;
+    shoted = true;
 })
 
 //function
@@ -249,7 +252,7 @@ function trashRender(){
                         y = Math.random() * (tree.hhMax- trashSize) + tree.hhMin
                     }
                 })
-                trash.push(new PropSpace(trashSize, 'black', 'metal', 'trash', x, y))
+                trash.push(new PropSpace(trashSize, trashSrc[0], 'metal', 'trash', x, y))
             }
         }
     })
@@ -289,6 +292,9 @@ trashRender()
 function render() {
     //clear the Canvas
     ctx.clearRect(0, 0, W, H);
+    //bg
+    bg.src = '../media/bgSpace.png';
+    ctx.drawImage(bg, 0, 0)
     //ground
     ctx.fillStyle = 'rgb(80,155,102)'
     ctx.fillRect(0, 670, W, H)
@@ -300,21 +306,90 @@ function render() {
     //render trees
     trees.forEach((tree)=>{ tree.update() })
     //ground
-    bgGround.src = '../../media/groundSpace.png';
+    bgGround.src = '../media/groundSpace.png';
     ctx.drawImage(bgGround, 0, 690)
     //render shot
     shot.update()
     //render trash
     trash.forEach((prop) => { prop.update() })
-    //player boundering;
-    if (rightKey && xp + w < W) xp+=pMovement;
-    if (leftKey && xp > 0) xp-=pMovement;
-    if (downKey && yp + h < H) yp+=pMovement;
-    if (upKey && yp + h > 8*H/10) yp-=pMovement;
-    //player
-    ctx.fillStyle = 'blue';
-    ctx.fillRect(xp,yp,w,h)    
-
-    window.requestAnimationFrame(render);
+    //player boundering && player animations
+    if (rightKey && xp + w < W){
+        xp+=pMovement;
+        //walkright
+        ctx.drawImage(walkRight, frameIndex * 30, 0, 30, 46, xp+5, yp-5, w-5, h+5);
+        if(currentFrame%24 == 0)  frameIndex++;
+        if (frameIndex == 6) frameIndex = 0; //reset the number of frames counter
+        if(currentFrame >= 120) currentFrame = 0;
+    } 
+    if (leftKey && xp > 0){
+        xp-=pMovement;
+        //walkleft
+        ctx.drawImage(walkLeft, frameIndex * 30, 0, 30, 46, xp+5, yp-5, w-5, h+5);
+        if(currentFrame%24 == 0)  frameIndex++;
+        if (frameIndex == 6) frameIndex = 0; //reset the number of frames counter
+        if(currentFrame >= 120) currentFrame = 0;
+    }
+    if (downKey && yp + h < H){
+        yp+=pMovement;
+        //walking down
+        if(fleft){
+            ctx.drawImage(walkLeft, frameIndex * 30, 0, 30, 46, xp+5, yp-5, w-5, h+5);
+            if(currentFrame%24 == 0)  frameIndex++;
+            if (frameIndex == 6) frameIndex = 0; //reset the number of frames counter
+            if(currentFrame >= 120) currentFrame = 0;
+        } else {
+            ctx.drawImage(walkRight, frameIndex * 30, 0, 30, 46, xp+5, yp-5, w-5, h+5);
+            if(currentFrame%24 == 0)  frameIndex++;
+            if (frameIndex == 6) frameIndex = 0; //reset the number of frames counter
+            if(currentFrame >= 120) currentFrame = 0;
+        }
+    }
+    if (upKey && yp + h > 8*H/10){
+        yp-=pMovement;
+        //walking up
+        if(fleft){
+            ctx.drawImage(walkLeft, frameIndex * 30, 0, 30, 46, xp+5, yp-5, w-5, h+5);
+            if(currentFrame%24 == 0)  frameIndex++;
+            if (frameIndex == 6) frameIndex = 0; //reset the number of frames counter
+            if(currentFrame >= 120) currentFrame = 0;
+        } else {
+            ctx.drawImage(walkRight, frameIndex * 30, 0, 30, 46, xp+5, yp-5, w-5, h+5);
+            if(currentFrame%24 == 0)  frameIndex++;
+            if (frameIndex == 6) frameIndex = 0; //reset the number of frames counter
+            if(currentFrame >= 120) currentFrame = 0;
+        }
+    } 
+    if(!upKey && !downKey && !rightKey && !leftKey && !shoted){
+         //idle
+         if(fleft){
+            ctx.drawImage(idleLeft, frameIndex * 32, 0, 32, 40, xp, yp, w, h);
+            if(currentFrame%24 == 0)  frameIndex++;
+            if (frameIndex == 6) frameIndex = 0; //reset the number of frames counter
+            if(currentFrame >= 120) currentFrame = 0;
+        } else {
+            ctx.drawImage(idleRight, frameIndex * 32, 0, 32, 40, xp, yp, w, h);
+            if(currentFrame%24 == 0)  frameIndex++
+            if (frameIndex == 5) frameIndex = 0 //reset the number of frames counter
+            if(currentFrame >= 120) currentFrame = 0;
+        }
+    }
+    if(shoted && startShoot){
+        //trow
+        if(fleft){
+            ctx.drawImage(trowLeft, frameIndex * 30, 0, 30, 40, xp, yp, w, h);
+            if(currentFrame%15 == 0)  frameIndex++;
+            if (frameIndex == 4) frameIndex = 0, shoted = false; //reset the number of frames counter
+            if(currentFrame >= 120) currentFrame = 0;
+        } else {
+            ctx.drawImage(trowRight, frameIndex * 30, 0, 30, 40, xp, yp, w, h);
+            if(currentFrame%15 == 0)  frameIndex++;
+            if (frameIndex == 4) frameIndex = 0, shoted = false; //reset the number of frames counter
+            if(currentFrame >= 120) currentFrame = 0;
+        }
+        
+    }
+    currentFrame++
 }
-window.onload = render;
+idleLeft.onload = function () {
+    setInterval(render, 1000/120)
+};
