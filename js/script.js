@@ -1,6 +1,5 @@
-import dragAndDropGame from "../js/gameModes/dragAndDropMode.js"
 
-
+const player = {name: "", score: 0, bag: []}
 
 
 //Sounds
@@ -62,10 +61,11 @@ document.querySelectorAll(".cancel").forEach((btn) => {
 //Create User
 document.getElementById("confirm").addEventListener('click', () => {
     document.removeEventListener("keydown", clickSound)
-    const userName = document.getElementById('userName').value;
+    player.name = document.getElementById('userName').value;
+    localStorage.setItem("player", JSON.stringify(player))
     canvas.style.display = "";
     setTimeout(() => {
-        dragAndDropGame();
+        document.location = "http://127.0.0.1:5500/html/openWorld.html"
     }, 500);
 })
 

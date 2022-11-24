@@ -30,8 +30,8 @@ let props = [{id:1, name: `metalCanSoda`, img: `/media/props/glass01.png`, propX
              {id:10, name: `plasticBleach2`, img: `/media/props/metal05.png`, propX: 850, propY: 1650, validate: false},
              {id:11, name: `metalCanSoda2`, img: `/media/props/other01.png`, propX: 1350, propY: 1225, validate: false}
             ]
-/* let test1 = {name: 'test', img: `/media/props/metal04.png`, propX: 1350, propY:1225} */
 let propName
+let propsPosition
 
 
 //ORIGINAL IMAGE HEIGHT/WIDTH
@@ -82,7 +82,6 @@ let character_left = new Image();
 let character_right_walk = new Image();
 let character_left_walk = new Image();
 let backpack = new Image();
-/* test1.name = new Image(); */
 chosenProps.forEach(prop => {
     if(prop.validate == true){
         prop.name = new Image() 
@@ -107,26 +106,19 @@ function base(){
             prop.name.src = prop.img
         }
     }) 
-/*     test1.name.src = test1.img */
 
 
     base_image.onload = function(){
         imgW = base_image.width
         imgH = base_image.height   
-        // console.log(imgW, imgH); 
-        // ctx.drawImage(base_image, imgX, imgY, dimensionX, dimensionY, 0, 0, 500, 500);
     }
 }
 
 //GET ALL THE DATA NEEDED
 function injectData() {
-    if(!localStorage.bag){
-        bag = []
-        localStorage.setItem('bag', JSON.stringify(bag))
-        console.log('bag data injected')
-    } else {
-        bag = JSON.parse(localStorage.getItem('bag'))
-    }
+    player = JSON.parse(localStorage.getItem('player'))
+    bag = player.bag
+    score = player.score
     
     if(!localStorage.tree){
         tree = 0
@@ -136,13 +128,6 @@ function injectData() {
         tree = JSON.parse(localStorage.getItem('tree'))
     }
 
-    if(!localStorage.score){
-        score = 0
-        localStorage.setItem('score', JSON.stringify(score))
-        console.log('score data injected')
-    } else {
-        score = JSON.parse(localStorage.getItem('score'))
-    }
 
     if(!localStorage.chosenProps){
         //RANDOM ITEMS
@@ -157,10 +142,12 @@ function injectData() {
                 i--
             }
         }
+        propsPosition = chosenProps
         localStorage.setItem('chosenProps', JSON.stringify(chosenProps))
         console.log('trash data injected')
     } else {
         chosenProps = JSON.parse(localStorage.getItem('chosenProps'))
+        propsPosition = chosenProps
     }
 }
 
@@ -170,16 +157,12 @@ window.onload = render()
 function render() {
     // BACKGROUND 
     ctx.clearRect(0, 0, W, H)
-    //base_image.src = `img/map.png`;
-    //console.log(imgX, imgY)
     ctx.drawImage(base_image,  imgX, imgY, dimensionX, dimensionY, 0, 0, W, H);
     ctx.drawImage(backpack, 1275, 0, 100, 100);
 
-/*     ctx.drawImage(test1.name, test1.propX, test1.propY) */
     
     chosenProps.forEach(prop => {
         if(prop.validate){
-            // ctx.drawImage(prop.name, prop.propX, prop.propY, propDimensionX, propDimensionY, 0, 0, W, H)
             ctx.drawImage(prop.name, prop.propX, prop.propY)  
         }
     })
@@ -238,7 +221,6 @@ window.addEventListener('keydown', (event) => {
                                 chosenProps.forEach(prop => {
                                     prop.propX += speed*1.45
                                 })
-                                /* test1.propX += speed*1.45 */
                                 direction = character_left_walk
                                 right = false
                                 left = true
@@ -252,7 +234,6 @@ window.addEventListener('keydown', (event) => {
                     }
                 }
             } 
-            //console.log('left')
             break;
         case 38: 
         ctx.clearRect(0, 0, W, H)
@@ -278,7 +259,6 @@ window.addEventListener('keydown', (event) => {
                             chosenProps.forEach(prop => {
                                 prop.propY += speed*1.43
                             })
-                            /* test1.propY += speed*1.45 */
                             if(right == true){
                                 direction = character_right_walk
                             } else {
@@ -296,7 +276,6 @@ window.addEventListener('keydown', (event) => {
                 }
             }
         }
-        //console.log('up')
         break;
         case 39:
             ctx.clearRect(0, 0, W, H)
@@ -320,7 +299,6 @@ window.addEventListener('keydown', (event) => {
                                 chosenProps.forEach(prop => {
                                     prop.propX -= speed*1.45
                                 })
-                                /* test1.propX -= speed*1.45 */
                                 direction = character_right_walk
                                 left = false
                                 right = true
@@ -334,7 +312,6 @@ window.addEventListener('keydown', (event) => {
                     }
                 }
             }
-            //console.log('right')
         break;
         case 40:
                 ctx.clearRect(0, 0, W, H)
@@ -361,7 +338,6 @@ window.addEventListener('keydown', (event) => {
                                         prop.propY -= speed*1.43
                                     })
                                     yPosition -= speed*1.25
-                                    /* test1.propY -= speed*1.45 */
                                     if(right == true){
                                         direction = character_right_walk
                                     } else {
@@ -379,7 +355,6 @@ window.addEventListener('keydown', (event) => {
                         }
                     }
                 }
-            //console.log('down')
         break;
         case 90: //'z' press
         
@@ -411,6 +386,7 @@ window.addEventListener('keydown', (event) => {
                         }
                     })
                     //SAVE THE VARIABLE LOCALSTORAGE
+                    propsPositionFunc()
                     localStorage.setItem('tree', JSON.stringify(tree))
                     localStorage.setItem('chosenProps', JSON.stringify(chosenProps))
                     location.href = './spaceIndex.html' 
@@ -425,6 +401,7 @@ window.addEventListener('keydown', (event) => {
                     tree = 0
 
                     //SAVE THE VARIABLE LOCALSTORAGE
+                    propsPositionFunc()
                     localStorage.setItem('tree', JSON.stringify(tree))
                     location.href = './drag-and-drop.html'
                 }
@@ -454,6 +431,7 @@ window.addEventListener('keydown', (event) => {
                             }
                         })
                         //SAVE THE VARIABLE LOCALSTORAGE
+                        propsPositionFunc()
                         localStorage.setItem('tree', JSON.stringify(tree))
                         localStorage.setItem('chosenProps', JSON.stringify(chosenProps))
                         location.href = './spaceIndex.html'  
@@ -467,6 +445,7 @@ window.addEventListener('keydown', (event) => {
                 } else {
                     tree = 0
                     //SAVE THE VARIABLE LOCALSTORAGE
+                    propsPositionFunc()
                     localStorage.setItem('tree', JSON.stringify(tree))
                     location.href = './drag-and-drop.html'
                 }
@@ -493,6 +472,7 @@ window.addEventListener('keydown', (event) => {
                         }
                     })
                     //SAVE THE VARIABLE LOCALSTORAGE
+                    propsPositionFunc()
                     localStorage.setItem('tree', JSON.stringify(tree))
                     localStorage.setItem('chosenProps', JSON.stringify(chosenProps))
                     location.href = './spaceIndex.html'
@@ -506,6 +486,7 @@ window.addEventListener('keydown', (event) => {
                 } else {
                     tree = 0
                     //SAVE THE VARIABLE LOCALSTORAGE
+                    propsPositionFunc()
                     localStorage.setItem('tree', JSON.stringify(tree))
                     location.href = './drag-and-drop.html'
                 }
@@ -535,6 +516,7 @@ window.addEventListener('keydown', (event) => {
                         }
                     })
                     //SAVE THE VARIABLE LOCALSTORAGE
+                    propsPositionFunc()
                     localStorage.setItem('tree', JSON.stringify(tree))
                     localStorage.setItem('chosenProps', JSON.stringify(chosenProps))
                     location.href = './spaceIndex.html'
@@ -548,6 +530,7 @@ window.addEventListener('keydown', (event) => {
                 } else {
                     tree = 0
                     //SAVE THE VARIABLE LOCALSTORAGE
+                    propsPositionFunc()
                     localStorage.setItem('tree', JSON.stringify(tree))
                     location.href = './drag-and-drop.html'
                 }
@@ -609,4 +592,11 @@ window.addEventListener('keyup', () => {
             return false 
         }   
     }
-} 
+}
+
+function propsPositionFunc() {
+    propsPosition.forEach((prop,i) => {
+        chosenProps[i].propX = prop.propX
+        chosenProps[i].propY = prop.propY
+    })
+}

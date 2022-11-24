@@ -4,9 +4,11 @@ const canvas = document.querySelector('#myCanvas');
 const ctx = canvas.getContext("2d");
 const W = canvas.width;
 const H = canvas.height;
-const space_music = new Audio()
-space_music.volume = 0.1
-space_music.play();
+const space_music = new Audio('../media/sound/space_music.mp3')
+space_music.volume = localStorage.getItem('volume')
+document.querySelector('body').click()
+setTimeout(() => space_music.play(), 1000)
+
 
 //GLOBALS
 //add dash
@@ -56,7 +58,7 @@ class PropSpace {
             } else { this.colisionPlayer = true; break; }
         };
         if (this.colisionPlayer) {
-            playerBag.push(new Prop(this.h, this.w, this.tImg.src, this.type, H, W, ctx));
+            player.bag.push({ h: this.h, w: this.w, src: this.tImg.src, type: this.type });
             this.removeTrash()//remove trash
         }
         //points
@@ -218,7 +220,8 @@ clouds.push(new C9(0.04, "#EBEBEB", 150, 45, 350, 50),
     new C9(0.1, "white", 1200, 80, 150, 35))
 //player position and atributes
 
-let xp = 100, yp = 700, w = 77, h = 80, pMovement = 1.3, playerBag = [], points = 0;
+const player = JSON.parse(localStorage.getItem("player"))
+let xp = 100, yp = 700, w = 77, h = 80, pMovement = 1.3, points = 0;
 let idleLeft = new Image(), idleRight = new Image(), walkRight = new Image(), walkLeft = new Image(), trowLeft = new Image(), trowRight = new Image(), bg = new Image();
 let currentFrame = 0;
 idleRight.src = '../media/animation_player/static_right2.png'; idleRight.width = w; idleRight.height = h;
@@ -347,7 +350,6 @@ treesRender()
 trashRender()
 
 function render() {
-    console.log(playerBag)
     //clear the Canvas
     ctx.clearRect(0, 0, W, H);
     //bg
@@ -362,7 +364,7 @@ function render() {
     ctx.font = "20px Georgia";
     ctx.fillText(`Points: ${points}`, 10, 30);
     ctx.font = "20px Georgia";
-    ctx.fillText(`Trash Count: ${playerBag.length}`, 10, 60);
+    ctx.fillText(`Trash Count: ${player.bag.length}`, 10, 60);
     //render trees
     trees.forEach((tree) => { tree.update() })
     //ground
@@ -455,6 +457,14 @@ function render() {
             if (currentFrame >= 120) currentFrame = 0;
         }
 
+    }
+    if (!trash.length) {
+            ctx.font = "150px Comic Sans MS"
+            ctx.fillStyle = "white"
+            ctx.textAlign = "center"
+            ctx.fillText("STAGE CLEAN", W / 2, H / 2 - 20)
+            localStorage.setItem("player", JSON.stringify(player))
+            setTimeout(() => { document.location = "./openWorld.html" }, 2000)
     }
     currentFrame++
 }
