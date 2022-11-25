@@ -6,9 +6,6 @@ import EcoPoint from "../class/ecoPointClass.js"
 //SOUNDS
 const missSound = new Audio ("../media/sound/miss.mp3")
 const successSound = new Audio ("../media/sound/success.mp3")
-const drag_music = new Audio ("../media/music/drag_music.mp3")
-drag_music.volume = 0.1
-drag_music.play()
 
 //GLOBALS
 const canvas = document.querySelector('canvas');
@@ -19,7 +16,6 @@ let ecopoints = [];
 let props = []; // props array of objects
 let propMoving = {};
 let background = new Image()
-let playerDragInDrop = {}
 background.src = "../media/bg/trashBackGround.png";
 background.width = W;
 background.height = H;
@@ -41,9 +37,10 @@ function dragAndDropGame() {
     ecopoints.push(new EcoPoint(100 + 100, 270, 150, 180, `..\\media\\props\\trashBinYellow.png`, 'metal', 'metalEcoPoint', ctx))
     ecopoints.push(new EcoPoint(100 + 400, 270, 150, 180, `..\\media\\props\\trashBinBlue.png`, 'paper', 'paperEcoPoint', ctx))
     ecopoints.push(new EcoPoint(100 + 700, 270, 150, 180, `..\\media\\props\\trashBinGreen.png`, 'glass', 'glassEcoPoint', ctx))
-    ecopoints.push(new EcoPoint(100 + 1000, 270, 150, 180, `..\\media\\props\\trashBin.png`, 'others', 'othersEcoPoint', ctx))
+    ecopoints.push(new EcoPoint(100 + 1000, 270, 150, 180, `..\\media\\props\\trashBin.png`, 'other', 'othersEcoPoint', ctx))
 
     //FIRST DRAW
+    background.onload = () => ctx.drawImage(background, 0, 0, W, H)
     ecopoints.forEach((ecopoint) => {
         ecopoint.draw()
     })
@@ -68,7 +65,7 @@ function render() {
         prop.update()
     })
     if (!props.length) {
-        if (JSON.parse(localStorage.getItem("chosenProps")).find((prop) => { prop.validate == true })) {
+        if (JSON.parse(localStorage.getItem("chosenProps")).find((prop) => prop.validate == true)) {
             ctx.font = "150px Comic Sans MS"
             ctx.fillStyle = "white"
             ctx.textAlign = "center"
@@ -77,10 +74,10 @@ function render() {
             localStorage.setItem("player", JSON.stringify(player))
             setTimeout(() => { document.location = "./openWorld.html" }, 2000)
         } else {
-            ctx.font = "150px Comic Sans MS"
+            ctx.font = "80px Comic Sans MS"
             ctx.fillStyle = "white"
             ctx.textAlign = "center"
-            ctx.fillText(`PONTUAÇÃO FINAL ${player.score}`, W / 2, H / 2 - 20)
+            ctx.fillText(`Pontuação final: ${player.score}`, W / 2, H / 2 - 20)
             localStorage.removeItem("player")
             localStorage.removeItem("tree")
             localStorage.removeItem("chosenProps")
@@ -109,12 +106,14 @@ function correctPosition(prop, ecopoints) {
         if ((ecopoint.x < prop.x) && (ecopoint.y < prop.y) && (ecopoint.x + ecopoint.w > prop.x + prop.w) && (ecopoint.y + ecopoint.h > prop.y + prop.h))
             if (ecopoint.type == prop.type) {
                 props.pop()
+                player.score += 100
                 successSound.currentTime = 0
                 successSound.play()
             }
             else {
                 ecopoint.shake = true
                 let shake = setInterval(() => { render() }, 40)
+                player.score -= 10
                 missSound.currentTime = 0
                 missSound.play()
                 setTimeout(() => { clearTimeout(shake); ecopoint.shake = false }, 300)

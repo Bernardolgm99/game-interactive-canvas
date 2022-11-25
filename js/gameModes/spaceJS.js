@@ -219,7 +219,7 @@ clouds.push(new C9(0.04, "#EBEBEB", 150, 45, 350, 50),
 //player position and atributes
 
 const player = JSON.parse(localStorage.getItem("player"))
-let xp = 100, yp = 700, w = 77, h = 80, pMovement = 1.3, points = 0;
+let xp = 100, yp = 700, w = 77, h = 80, pMovement = 1.3, points = player.score;
 let idleLeft = new Image(), idleRight = new Image(), walkRight = new Image(), walkLeft = new Image(), trowLeft = new Image(), trowRight = new Image(), bg = new Image();
 let currentFrame = 0;
 idleRight.src = '../media/animation_player/static_right2.png'; idleRight.width = w; idleRight.height = h;
@@ -299,16 +299,10 @@ function trashRender() {
                     }
                 })
                 let random = Math.round(Math.random() * 3)
-                switch (random) {
-                    case 0:
-                        type = 'glass'
-                    case 1:
-                        type = 'metal'
-                    case 2:
-                        type = 'plastic'
-                    case 3:
-                        type = 'other'
-                }
+                if (random == 0) type = 'glass'
+                else if (random == 1) type = 'metal'
+                else if (random == 2) type = 'metal'
+                else if (random == 3) type = 'other'
                 trash.push(new PropSpace(trashSize, imgRandom(random), type, x, y))
             }
         }
@@ -457,12 +451,13 @@ function render() {
 
     }
     if (!trash.length) {
-            ctx.font = "150px Comic Sans MS"
-            ctx.fillStyle = "white"
-            ctx.textAlign = "center"
-            ctx.fillText("STAGE CLEAN", W / 2, H / 2 - 20)
-            localStorage.setItem("player", JSON.stringify(player))
-            setTimeout(() => { document.location = "./openWorld.html" }, 2000)
+        ctx.font = "150px Comic Sans MS"
+        ctx.fillStyle = "white"
+        ctx.textAlign = "center"
+        ctx.fillText("STAGE CLEAN", W / 2, H / 2 - 20)
+        player.score = points
+        localStorage.setItem("player", JSON.stringify(player))
+        setTimeout(() => { document.location = "./openWorld.html" }, 2000)
     }
     currentFrame++
 }

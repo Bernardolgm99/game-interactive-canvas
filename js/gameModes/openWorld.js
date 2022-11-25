@@ -142,12 +142,12 @@ function injectData() {
                 i--
             }
         }
-        propsPosition = chosenProps
+        propsPosition = structuredClone(chosenProps)
         localStorage.setItem('chosenProps', JSON.stringify(chosenProps))
         console.log('trash data injected')
     } else {
         chosenProps = JSON.parse(localStorage.getItem('chosenProps'))
-        propsPosition = chosenProps
+        propsPosition = structuredClone(chosenProps)
     }
 }
 
