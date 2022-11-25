@@ -1,6 +1,12 @@
 
+<<<<<<< HEAD
 const player = {name: "", score: 0, bag: []}
 
+=======
+const bg_music = new Audio ("../media/sound/menu_music.mp3")
+bg_music.volume = 0.1
+bg_music.play()
+>>>>>>> 0f3eadbe92a1075d720ec086ec510dfad172570d
 
 //Sounds
 localStorage.setItem("volume", JSON.stringify(1))

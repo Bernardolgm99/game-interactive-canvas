@@ -4,11 +4,9 @@ const canvas = document.querySelector('#myCanvas');
 const ctx = canvas.getContext("2d");
 const W = canvas.width;
 const H = canvas.height;
-const space_music = new Audio('../media/sound/space_music.mp3')
-space_music.volume = localStorage.getItem('volume')
-document.querySelector('body').click()
-setTimeout(() => space_music.play(), 1000)
-
+const space_music = new Audio("../media/sound/space_music.mp3")
+space_music.volume = 0.1
+space_music.play();
 
 //GLOBALS
 //add dash
