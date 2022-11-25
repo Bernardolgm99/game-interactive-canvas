@@ -215,9 +215,10 @@ clouds.push(new C9(0.04, "#EBEBEB", 150, 45, 350, 50),
 //player position and atributes
 
 const player = JSON.parse(localStorage.getItem("player"))
-let xp = 100, yp = 700, w = 77, h = 80, pMovement = 1.3, points = player.score;
+let xp = 100, yp = 700, w = 77, h = 80, pMovement = 1.3, points = player.score; let backpack = new Image();
 let idleLeft = new Image(), idleRight = new Image(), walkRight = new Image(), walkLeft = new Image(), trowLeft = new Image(), trowRight = new Image(), bg = new Image();
 let currentFrame = 0;
+backpack.src = `../media/props/backpack.png`
 idleRight.src = '../media/animation_player/static_right2.png'; idleRight.width = w; idleRight.height = h;
 walkRight.src = '../media/animation_player/walk_right2.png'; walkRight.width = w; walkRight.height = h;
 walkLeft.src = '../media/animation_player/walk_left2.png'; walkLeft.width = w; walkLeft.height = h;
@@ -333,7 +334,6 @@ function treesRender(){
         }
         trees.push(tree)
 }}
-start()
 //trash placement calculator
 treesRender()
 trashRender()
@@ -349,13 +349,14 @@ function render() {
     //ground
     ctx.fillStyle = 'rgb(80,155,102)'
     ctx.fillRect(0, 670, W, H)
-    //points and trash number display
-    ctx.font = "20px Georgia";
-    ctx.fillText(`Points: ${points}`, 10, 30);
-    ctx.font = "20px Georgia";
-    ctx.fillText(`Trash Count: ${player.bag.length}`, 10, 60);
     //render trees
     trees.forEach((tree)=>{ tree.update() })
+    //points and trash number display
+    ctx.fillStyle = 'gray'
+    ctx.fillText(`x${player.bag.length}`, 1375, 80)
+    ctx.font = '30px IBM Plex Mono';
+    ctx.fillText(`Score:${points}`, 20, 50)
+    ctx.drawImage(backpack, 1275, 0, 100, 100);
     //ground
     bgGround.src = '../media/groundSpace.png';
     ctx.drawImage(bgGround, 0, 690)
@@ -366,6 +367,7 @@ function render() {
     //player boundering && player animations
     if (rightKey && xp + w < W){
         xp+=pMovement;
+        leftKey = false;
         //walkright
         ctx.drawImage(walkRight, frameIndex * 30, 0, 30, 46, xp+5, yp-5, w-5, h+5);
         if(currentFrame%24 == 0)  frameIndex++;
@@ -376,6 +378,7 @@ function render() {
     }
     if (leftKey && xp > 0){
         xp-=pMovement;
+        rightKey = false;
         //walkleft
         ctx.drawImage(walkLeft, frameIndex * 30, 0, 30, 46, xp+5, yp-5, w-5, h+5);
         if(currentFrame%24 == 0)  frameIndex++;
@@ -388,11 +391,13 @@ function render() {
         yp+=pMovement;
         //walking down
         if(fleft){
+            rightKey = false;
             ctx.drawImage(walkLeft, frameIndex * 30, 0, 30, 46, xp+5, yp-5, w-5, h+5);
             if(currentFrame%24 == 0)  frameIndex++;
             if (frameIndex == 6) frameIndex = 0; //reset the number of frames counter
             if(currentFrame >= 120) currentFrame = 0;
         } else {
+            leftKey = false;
             ctx.drawImage(walkRight, frameIndex * 30, 0, 30, 46, xp+5, yp-5, w-5, h+5);
             if(currentFrame%24 == 0)  frameIndex++;
             if (frameIndex == 6) frameIndex = 0; //reset the number of frames counter
@@ -405,11 +410,13 @@ function render() {
         yp-=pMovement;
         //walking up
         if(fleft){
+            rightKey = false;
             ctx.drawImage(walkLeft, frameIndex * 30, 0, 30, 46, xp+5, yp-5, w-5, h+5);
             if(currentFrame%24 == 0)  frameIndex++;
             if (frameIndex == 6) frameIndex = 0; //reset the number of frames counter
             if(currentFrame >= 120) currentFrame = 0;
         } else {
+            leftKey = false;
             ctx.drawImage(walkRight, frameIndex * 30, 0, 30, 46, xp+5, yp-5, w-5, h+5);
             if(currentFrame%24 == 0)  frameIndex++;
             if (frameIndex == 6) frameIndex = 0; //reset the number of frames counter
