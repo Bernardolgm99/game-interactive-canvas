@@ -52,8 +52,8 @@ class PropSpace {
             if (xp + w < this.x || xp > this.x + trashSize || yp + w < this.y || yp > this.y + trashSize){
             } else {this.colisionPlayer = true; break;}
         };
-        if(this.colisionPlayer){
-            playerBag.push(new Prop(this.h, this.w, this.tImg.src, this.type, H, W, ctx));
+        if (this.colisionPlayer) {
+            player.bag.push({ h: this.h, w: this.w, src: this.tImg.src, type: this.type });
             this.removeTrash()//remove trash
         }
         //points
@@ -213,31 +213,30 @@ clouds.push(new C9(0.04, "#EBEBEB", 150, 45, 350, 50),
             new C9(0.1, "#EBEBEB", 1150, 100, 150, 35),
             new C9(0.1, "white", 1200, 80, 150, 35))
 //player position and atributes
-function start(){
 
-    let xp = 100, yp = 700, w= 77, h= 80, pMovement = 1.3, playerBag = [], points = 0;
-    let idleLeft = new Image(),idleRight = new Image(),walkRight = new Image(),walkLeft = new Image(),trowLeft = new Image(),trowRight = new Image(),bg = new Image();
-    let currentFrame = 0;
-    idleRight.src = '../media/animation_player/static_right2.png'; idleRight.width = w; idleRight.height = h;
-    walkRight.src = '../media/animation_player/walk_right2.png'; walkRight.width = w; walkRight.height = h;
-    walkLeft.src = '../media/animation_player/walk_left2.png'; walkLeft.width = w; walkLeft.height = h;
-    trowLeft.src = '../media/animation_player/trow_left1.png'; trowLeft.width = w; trowLeft.height = h;
-    trowRight.src = '../media/animation_player/trow_right1.png'; trowRight.width = w; trowRight.height = h;
-    idleLeft.src = '../media/animation_player/static_left2.png'; idleLeft.width = w; idleLeft.height = h;
-    let frameIndex = 0,frameIndexTrow = 0;
-    //keys
-    let rightKey = false, leftKey = false, upKey = false, downKey = false, fleft = false, spaceKey = false, easterEgg = false;
-    //shot
-    let sizeRock = Math.floor(Math.random()* (25 - 15)+15), shot = new Shot(sizeRock, '../media/rock.png'), shoted = false;
-    //checkColison shot
-    let colision = false, xrSpace, yrSpace;
-    //calculate Shots
-    let angle, startShoot = false, dashAvailabe = false, scale;
-    //trash
-    let trash = [], trashSize, bgGround =  new Image(), numTrash = 10, type, cat;
-    //arvores
-    let trees = [] 
-}
+const player = JSON.parse(localStorage.getItem("player"))
+let xp = 100, yp = 700, w = 77, h = 80, pMovement = 1.3, points = 0;
+let idleLeft = new Image(), idleRight = new Image(), walkRight = new Image(), walkLeft = new Image(), trowLeft = new Image(), trowRight = new Image(), bg = new Image();
+let currentFrame = 0;
+idleRight.src = '../media/animation_player/static_right2.png'; idleRight.width = w; idleRight.height = h;
+walkRight.src = '../media/animation_player/walk_right2.png'; walkRight.width = w; walkRight.height = h;
+walkLeft.src = '../media/animation_player/walk_left2.png'; walkLeft.width = w; walkLeft.height = h;
+trowLeft.src = '../media/animation_player/trow_left1.png'; trowLeft.width = w; trowLeft.height = h;
+trowRight.src = '../media/animation_player/trow_right1.png'; trowRight.width = w; trowRight.height = h;
+idleLeft.src = '../media/animation_player/static_left2.png'; idleLeft.width = w; idleLeft.height = h;
+let frameIndex = 0, frameIndexTrow = 0;
+//keys
+let rightKey = false, leftKey = false, upKey = false, downKey = false, fleft = false, spaceKey = false, easterEgg = false;
+//shot
+let sizeRock = Math.floor(Math.random() * (25 - 15) + 15), shot = new Shot(sizeRock, '../media/rock.png'), shoted = false;
+//checkColison shot
+let colision = false, xrSpace, yrSpace;
+//calculate Shots
+let angle, startShoot = false, dashAvailabe = false, scale;
+//trash
+let trash = [], trashSize, bgGround = new Image(), numTrash = 10, type, cat;
+//arvores
+let trees = []
 
 //keys EVENTS
 window.addEventListener('keydown', e => {
@@ -346,7 +345,6 @@ treesRender()
 trashRender()
 
 function render() {
-    console.log(playerBag)
     //clear the Canvas
     ctx.clearRect(0, 0, W, H);
     //bg
@@ -361,7 +359,7 @@ function render() {
     ctx.font = "20px Georgia";
     ctx.fillText(`Points: ${points}`, 10, 30);
     ctx.font = "20px Georgia";
-    ctx.fillText(`Trash Count: ${playerBag.length}`, 10, 60);
+    ctx.fillText(`Trash Count: ${player.bag.length}`, 10, 60);
     //render trees
     trees.forEach((tree)=>{ tree.update() })
     //ground
@@ -455,9 +453,17 @@ function render() {
         }
         
     }
+    if (!trash.length) {
+            ctx.font = "150px Comic Sans MS"
+            ctx.fillStyle = "white"
+            ctx.textAlign = "center"
+            ctx.fillText("STAGE CLEAN", W / 2, H / 2 - 20)
+            localStorage.setItem("player", JSON.stringify(player))
+            setTimeout(() => { document.location = "./openWorld.html" }, 2000)
+    }
     currentFrame++
 }
 
 idleLeft.onload = function () {
-    setInterval(render, 1000/120)
-};
+    setInterval(render, 1000/120);
+}

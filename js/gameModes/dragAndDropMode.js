@@ -24,31 +24,24 @@ background.src = "../media/bg/trashBackGround.png";
 background.width = W;
 background.height = H;
 
+const player = JSON.parse(localStorage.getItem("player"))
+player.bag.forEach((prop) => {
+    props.push(new Prop(prop.h, prop.w, prop.src, prop.type, H, W, ctx))
+})
 
-
+dragAndDropGame()
 //GAME PLAY
-export default function dragAndDropGame(player) {
+function dragAndDropGame() {
     //CONFIG DEFINITIONS
-    console.log(localStorage.getItem('volume'));
     missSound.volume = +localStorage.getItem("volume")
     successSound.volume = 0.25 * +localStorage.getItem("volume")
 
-    playerDragInDrop = player
-    
-    //TEST OBJECTS
-    
-    /* props = player.h */
-    ecopoints.push(new EcoPoint(100+100, 270, 150, 180, `..\\media\\props\\trashBinYellow.png`, 'metal', 'metalEcoPoint', ctx))
-    ecopoints.push(new EcoPoint(100+400, 270, 150, 180, `..\\media\\props\\trashBinBlue.png`, 'paper', 'paperEcoPoint', ctx))
-    ecopoints.push(new EcoPoint(100+700, 270, 150, 180, `..\\media\\props\\trashBinGreen.png`, 'glass', 'glassEcoPoint', ctx))
-    ecopoints.push(new EcoPoint(100+1000, 270, 150, 180, `..\\media\\props\\trashBin.png`, 'others', 'othersEcoPoint', ctx))
 
-    props.push(new Prop(50, 50, "..\\media\\props\\glass01.png", "glass", H, W, ctx))
-    props.push(new Prop(50, 50, "..\\media\\props\\metal01.png", "metal", H, W, ctx))
-    props.push(new Prop(50, 50, "..\\media\\props\\plastic01.png", "metal", H, W, ctx))
-    props.push(new Prop(50, 50, "..\\media\\props\\plastic02.png", "metal", H, W, ctx))
-    localStorage.setItem('player', JSON.stringify({name:"JOHN DOE", point: 100, bag: props}))
-
+    //ECOPOINTS
+    ecopoints.push(new EcoPoint(100 + 100, 270, 150, 180, `..\\media\\props\\trashBinYellow.png`, 'metal', 'metalEcoPoint', ctx))
+    ecopoints.push(new EcoPoint(100 + 400, 270, 150, 180, `..\\media\\props\\trashBinBlue.png`, 'paper', 'paperEcoPoint', ctx))
+    ecopoints.push(new EcoPoint(100 + 700, 270, 150, 180, `..\\media\\props\\trashBinGreen.png`, 'glass', 'glassEcoPoint', ctx))
+    ecopoints.push(new EcoPoint(100 + 1000, 270, 150, 180, `..\\media\\props\\trashBin.png`, 'others', 'othersEcoPoint', ctx))
 
     //FIRST DRAW
     ecopoints.forEach((ecopoint) => {
@@ -63,17 +56,37 @@ export default function dragAndDropGame(player) {
 function render() {
     ctx.clearRect(0, 0, W, H)
     ctx.fillRect(0, 0, W, H)
-    ctx.drawImage(background,0,0,W,H)
-/*     ctx.font = "20px Georgia";
-    ctx.fillText(`Points: ${playerDragInDrop.score}`, 10, 30);
-    ctx.font = "20px Georgia";
-    ctx.fillText(`Trash Count: ${playerDragInDrop.bag.length}`, 10, 60); */
+    ctx.drawImage(background, 0, 0, W, H)
+    /*     ctx.font = "20px Georgia";
+        ctx.fillText(`Points: ${playerDragInDrop.score}`, 10, 30);
+        ctx.font = "20px Georgia";
+        ctx.fillText(`Trash Count: ${playerDragInDrop.bag.length}`, 10, 60); */
     ecopoints.forEach((ecopoint) => {
         ecopoint.update()
     })
     props.forEach((prop) => {
         prop.update()
     })
+    if (!props.length) {
+        if (JSON.parse(localStorage.getItem("chosenProps")).find((prop) => { prop.validate == true })) {
+            ctx.font = "150px Comic Sans MS"
+            ctx.fillStyle = "white"
+            ctx.textAlign = "center"
+            ctx.fillText("WELL DONE", W / 2, H / 2 - 20)
+            player.bag = []
+            localStorage.setItem("player", JSON.stringify(player))
+            setTimeout(() => { document.location = "./openWorld.html" }, 2000)
+        } else {
+            ctx.font = "150px Comic Sans MS"
+            ctx.fillStyle = "white"
+            ctx.textAlign = "center"
+            ctx.fillText(`PONTUAÇÃO FINAL ${player.score}`, W / 2, H / 2 - 20)
+            localStorage.removeItem("player")
+            localStorage.removeItem("tree")
+            localStorage.removeItem("chosenProps")
+            setTimeout(() => { document.location = "./index.html" }, 2000)
+        }
+    }
 }
 
 function draging(e, object) {
@@ -94,16 +107,16 @@ function verifyObjectHover(e, objects) {
 function correctPosition(prop, ecopoints) {
     ecopoints.forEach((ecopoint) => {
         if ((ecopoint.x < prop.x) && (ecopoint.y < prop.y) && (ecopoint.x + ecopoint.w > prop.x + prop.w) && (ecopoint.y + ecopoint.h > prop.y + prop.h))
-            if (ecopoint.type == prop.type){
+            if (ecopoint.type == prop.type) {
                 props.pop()
                 successSound.currentTime = 0
-                successSound.play() 
+                successSound.play()
             }
             else {
                 ecopoint.shake = true
                 let shake = setInterval(() => { render() }, 40)
                 missSound.currentTime = 0
-                missSound.play() 
+                missSound.play()
                 setTimeout(() => { clearTimeout(shake); ecopoint.shake = false }, 300)
             }
     })

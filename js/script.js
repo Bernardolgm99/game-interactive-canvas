@@ -1,9 +1,12 @@
-import dragAndDropGame from "../js/gameModes/dragAndDropMode.js"
 
+<<<<<<< HEAD
+const player = {name: "", score: 0, bag: []}
 
+=======
 const bg_music = new Audio ("../media/sound/menu_music.mp3")
 bg_music.volume = 0.1
 bg_music.play()
+>>>>>>> 0f3eadbe92a1075d720ec086ec510dfad172570d
 
 //Sounds
 localStorage.setItem("volume", JSON.stringify(1))
@@ -64,10 +67,11 @@ document.querySelectorAll(".cancel").forEach((btn) => {
 //Create User
 document.getElementById("confirm").addEventListener('click', () => {
     document.removeEventListener("keydown", clickSound)
-    const userName = document.getElementById('userName').value;
+    player.name = document.getElementById('userName').value;
+    localStorage.setItem("player", JSON.stringify(player))
     canvas.style.display = "";
     setTimeout(() => {
-        dragAndDropGame();
+        document.location = "http://127.0.0.1:5500/html/openWorld.html"
     }, 500);
 })
 
