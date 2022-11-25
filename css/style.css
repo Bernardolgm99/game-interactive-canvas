@@ -31,6 +31,13 @@ span {
     -webkit-text-stroke: 1px black;
 }
 
+.title-toturial {
+    position: absolute;
+    top: 10%;
+    width: 100%;
+    text-align: center;
+}
+
 .menu {
     background-color: rgba(0, 0, 0, 0.802);
     position: absolute;
@@ -44,6 +51,25 @@ span {
     border-radius: 10px;
     flex-direction: column;
     justify-content: space-around;
+}
+.toturial {
+    background-color: rgba(0, 0, 0, 0.802);
+    position: absolute;
+    height: 70%;
+    width: 70%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    display: flex;
+    border-radius: 10px;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.img{
+    height: 100%;
+    width: 15%;
 }
 
 canvas {
